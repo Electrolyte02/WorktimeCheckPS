@@ -5,6 +5,7 @@ import { UserDto } from '../../models/userDto';
 import { AuthDto } from '../../models/authDto';
 import { PaginatedResponse } from '../../models/paginatedResponse';
 import { UserInfoDto } from '../../models/userInfoDto';
+import { AuthorizedDto } from '../../models/authorizedDto';
 
 
 
@@ -15,11 +16,13 @@ export class UserService {
   private apiUrl = 'http://localhost:8080/auth/';
   private http:HttpClient = inject(HttpClient);
   
-  /** 🔐 Devuelve headers con el token de JWT */
+  /** 🔐 Devuelve headers con el token de JWT y User Id*/
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
     return new HttpHeaders({
       Authorization: `Bearer ${token}`,
+      'X-User-Id': userId ?? '', // custom header
     });
   }
   
@@ -27,8 +30,8 @@ export class UserService {
     return this.http.post(this.apiUrl + 'signup', user);
   }
 
-  login(auth: AuthDto): Observable<string> {
-    return this.http.post(this.apiUrl + 'login', auth, { responseType: 'text' });
+  login(auth: AuthDto): Observable<AuthorizedDto> {
+    return this.http.post<AuthorizedDto>(this.apiUrl + 'login', auth);
   }
 
   getUsers(

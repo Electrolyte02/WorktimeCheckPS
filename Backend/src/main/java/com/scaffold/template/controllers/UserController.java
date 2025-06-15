@@ -1,9 +1,11 @@
 package com.scaffold.template.controllers;
 
 import com.scaffold.template.dtos.AuthDto;
+import com.scaffold.template.dtos.AuthorizedDto;
 import com.scaffold.template.dtos.UserDto;
 import com.scaffold.template.dtos.UserInfoDto;
 import com.scaffold.template.entities.UserEntity;
+import com.scaffold.template.models.User;
 import com.scaffold.template.services.UserService;
 import com.scaffold.template.services.impl.JwtService;
 import org.modelmapper.ModelMapper;
@@ -43,18 +45,20 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody AuthDto authDto){
+    public ResponseEntity<AuthorizedDto> login(@RequestBody AuthDto authDto){
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authDto.getUserName(),authDto.getPassword()));
         if (userService.isUserEnabled(authDto.getUserName()) && authentication.isAuthenticated()){
             String token = jwtService.generateToken(authDto.getUserName());
-            return ResponseEntity.ok(token);
+            UserEntity user = userService.getUser(authDto.getUserName());
+            return ResponseEntity.ok(new AuthorizedDto(token,user.getId(), user.getUserRole()));
         }
         throw new UsernameNotFoundException("Invalid User Request");
     }
 
     @DeleteMapping("{userEmail}")
-    public ResponseEntity<Boolean> deleteUser(@PathVariable String userEmail){
-        Boolean result = userService.deleteUser(userEmail);
+    public ResponseEntity<Boolean> deleteUser(@RequestHeader("X-User-Id") Long userId,
+            @PathVariable String userEmail){
+        Boolean result = userService.deleteUser(userEmail, userId);
         if (result)
             return ResponseEntity.ok(result);
         return ResponseEntity.notFound().build();
@@ -62,6 +66,7 @@ public class UserController {
 
     @GetMapping("/paged")
     public ResponseEntity<Page<UserInfoDto>> getUsersPaged(
+            @RequestHeader("X-User-Id") Long userId,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(required = false) String search

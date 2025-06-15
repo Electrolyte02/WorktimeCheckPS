@@ -6,6 +6,7 @@ export interface Employee{
     employeeName:string,
     employeeLastName:string,
     employeeDocument:string,
+    employeeEmail:string,
     employeeArea:Area,
     employeeState:number,
     employeeShifts:EmployeeShift[]

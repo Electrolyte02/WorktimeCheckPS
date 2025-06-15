@@ -4,6 +4,30 @@
       <img class="sidebar--image" src="assets/Logo_Monitora_Blanco.png" alt="Logo epico">
     </div>
     <div class="sidebar--options">
+      @if (userRole == 'EMPLOYEE') {
+        <ul>
+        <li class="sidebar--options--option" [routerLink]="['/timeList/my']">
+          <img class="sidebar--options--option--image" src="assets/Clock.png">Mis Horarios
+        </li>
+        <li class="sidebar--options--option" [routerLink]="['/justificationList/my']">
+          <img class="sidebar--options--option--image" src="assets/today.png">Mis Justificaciones
+        </li>
+      </ul>
+      }
+      @if (userRole == 'MANAGER') {
+        <ul>
+        <li class="sidebar--options--option" [routerLink]="['/employeeList']">
+          <img class="sidebar--options--option--image" src="assets/gmail_groups.png">Empleados del Area
+        </li>
+        <li class="sidebar--options--option">
+          <img class="sidebar--options--option--image" src="assets/Clock.png">Horarios del Area
+        </li>
+        <li class="sidebar--options--option">
+          <img class="sidebar--options--option--image" src="assets/today.png">Aprobaciones
+        </li>
+      </ul>
+      }
+      @if (userRole == 'ADMIN') {
       <ul>
         <li class="sidebar--options--option" [routerLink]="['/employeeList']">
           <img class="sidebar--options--option--image" src="assets/gmail_groups.png">Empleados
@@ -18,6 +42,8 @@
           <img class="sidebar--options--option--image" [routerLink]="['/config']"  src="assets/settings.png">Configuración
         </li>
       </ul>
+      }
+      
     </div>
   </div>
 

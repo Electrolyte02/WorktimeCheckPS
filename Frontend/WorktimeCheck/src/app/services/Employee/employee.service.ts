@@ -14,8 +14,10 @@ export class EmployeeService {
   /** 🔐 Devuelve headers con el token de JWT */
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
     return new HttpHeaders({
       Authorization: `Bearer ${token}`,
+      'X-User-Id': userId ?? '', // custom header
     });
   }
 
@@ -51,20 +53,23 @@ export class EmployeeService {
     });
   }
 
-  updateEmployee(employee: Employee): Observable<Employee> {
-    console.log(employee);
-    return this.http.put<Employee>(
-      `${this.apiUrl}/${employee.employeeId}`,
-      employee,
-      {
-        headers: this.getAuthHeaders(),
-      }
-    );
-  }
+
+  updateEmployee(employee: Employee, changeSchedules: boolean = false): Observable<Employee> {
+  const url = `${this.apiUrl}/${employee.employeeId}/${changeSchedules}`;
+  return this.http.put<Employee>(url, employee, {
+    headers : this.getAuthHeaders()
+  });
+}
 
   deleteEmployee(employeeId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${employeeId}`, {
       headers: this.getAuthHeaders(),
     });
+  }
+
+  getAllEmployees():Observable<Employee[]> {
+    return this.http.get<Employee[]>(`${this.apiUrl}/all`, {
+      headers: this.getAuthHeaders()
+    })
   }
 }

@@ -7,7 +7,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "Employees")
+@Table(name = "employees")
 public class EmployeeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +23,9 @@ public class EmployeeEntity {
     @Column(name = "employee_document", nullable = false)
     private String employeeDocument;
 
+    @Column(name = "employee_email", nullable = false)
+    private String email;
+
     @Column(name = "employee_state", nullable = false)
     private Long employeeState;
 
@@ -32,5 +35,4 @@ public class EmployeeEntity {
     @ManyToOne
     @JoinColumn(name = "area_id", nullable = false)
     private AreaEntity employeeArea;
-
 }

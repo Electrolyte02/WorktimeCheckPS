@@ -4,7 +4,8 @@ import { PaginatedResponse } from '../../../models/paginatedResponse';
 import { EmployeeTime } from '../../../models/employeeTime';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-time-list',
@@ -22,9 +23,14 @@ export class TimeListComponent implements OnInit {
   employeeId: number = 1;
 
   private timeService: TimeService = inject(TimeService);
+  private route:Router = inject(Router);
   private router: ActivatedRoute = inject(ActivatedRoute);
+  private toastService:ToastrService = inject(ToastrService);
 
   ngOnInit(): void {
+    this.router.params.subscribe(params => 
+      this.employeeId=params['id']
+    )
     this.loadTimes();
   }
 
@@ -36,6 +42,7 @@ export class TimeListComponent implements OnInit {
         this.page = res.number;
       },
       error: (err: any) => {
+        this.toastService.error('Error al obtener los ingresos/egresos', err.error);
         console.error('Error fetching employee times', err);
       }
     });
@@ -58,5 +65,9 @@ export class TimeListComponent implements OnInit {
       this.page++;
       this.loadTimes();
     }
+  }
+
+  redirectJustification(timeId: number) {
+    this.route.navigate(['/justification', timeId])
   }
 }

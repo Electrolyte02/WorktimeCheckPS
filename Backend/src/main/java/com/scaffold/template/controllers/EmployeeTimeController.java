@@ -23,12 +23,28 @@ public class EmployeeTimeController {
 
     @GetMapping("/paged")
     public ResponseEntity<Page<EmployeeTime>> getEmployeeTimesPaged(
+            @RequestHeader("X-User-Id") Long userId,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(required = true) Long employeeId
     ) {
-        Page<EmployeeTime> times = timeService.getEmployeeTimesByEmployee(page,size,employeeId);
+        Page<EmployeeTime> times = timeService.getEmployeeTimesByEmployee(page,size,employeeId, userId);
         return ResponseEntity.ok(times);
     }
 
+    @GetMapping("/{timeId}")
+    public ResponseEntity<EmployeeTime> getEmployeeTimeById(@PathVariable Long timeId){
+        EmployeeTime time = timeService.getEmployeeTimeById(timeId);
+        return ResponseEntity.ok(time);
+    }
+
+    @GetMapping("/paged/my")
+    public ResponseEntity<Page<EmployeeTime>> getEmployeeTimesPagedByUser(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestHeader("X-User-Id") Long userId
+    ) {
+        Page<EmployeeTime> times = timeService.getEmployeeTimesByUserId(page,size,userId);
+        return ResponseEntity.ok(times);
+    }
 }

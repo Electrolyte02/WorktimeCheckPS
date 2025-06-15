@@ -9,7 +9,7 @@ import java.time.LocalTime;
 @Entity
 @Getter
 @Setter
-@Table(name = "Employee_Shifts")
+@Table(name = "employee_shifts")
 public class EmployeeShiftEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

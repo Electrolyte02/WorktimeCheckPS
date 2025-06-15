@@ -1,4 +1,6 @@
 export interface Area{
     id:number,
-    description:string
+    description:string,
+    areaResponsible:number,
+    state:number
 }

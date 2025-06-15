@@ -1,7 +1,8 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Area } from '../../models/area';
+import { PaginatedResponse } from '../../models/paginatedResponse';
 
 @Injectable({
   providedIn: 'root',
@@ -13,8 +14,10 @@ export class AreaService {
   /** 🔐 Devuelve headers con el token de JWT */
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
     return new HttpHeaders({
       Authorization: `Bearer ${token}`,
+      'X-User-Id': userId ?? '', // custom header
     });
   }
 
@@ -40,5 +43,19 @@ export class AreaService {
     return this.http.delete<void>(`${this.apiUrl}/${areaId}`, {
       headers: this.getAuthHeaders(),
     });
+  }
+
+  getAreasPaged(
+    size:number,
+    page:number
+  ) : Observable<PaginatedResponse<Area>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+      return this.http.get<PaginatedResponse<Area>>(`${this.apiUrl}/paged`, {
+        params,
+        headers: this.getAuthHeaders()
+      })
   }
 }

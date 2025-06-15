@@ -26,6 +26,9 @@ public class EmployeeDto {
     private String employeeDocument;
 
     @NotNull
+    private String employeeEmail;
+
+    @NotNull
     private Area employeeArea;
 
     @NotNull

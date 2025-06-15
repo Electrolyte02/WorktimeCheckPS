@@ -2,14 +2,11 @@ package com.scaffold.template.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "Users")
+@Table(name = "users")
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,17 +30,11 @@ public class UserEntity {
 
     @Column(name = "user_role")
     private String userRole;
-    /*@ManyToMany
-    @JoinTable(
-            name = "Users_Roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<RoleEntity> roles; // Relación con los roles
 
-    // Métod para devolver los roles como una cadena separada por comas
-    public String getRolesAsString() {
-        return roles.stream()
-                .map(RoleEntity::getDescription)
-                .collect(Collectors.joining(","));
-    }*/
+    @Column(name = "user_employee")
+    private Long employeeId;
+
+    @OneToOne
+    @JoinColumn(name = "user_employee", referencedColumnName = "employee_id", insertable = false, updatable = false)
+    private EmployeeEntity employeeEntity;
 }

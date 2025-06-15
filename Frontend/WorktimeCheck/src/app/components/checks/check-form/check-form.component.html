@@ -1,0 +1,154 @@
+<div class="form-container">
+  <!-- Loading indicator -->
+  <div *ngIf="isLoading" class="loading-container">
+    <p>Cargando justificación...</p>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="error-container">
+    <p class="error-message">{{ error }}</p>
+    <button type="button" (click)="loadJustificationData()" class="form--retry-button">
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Main form -->
+  <form [formGroup]="checkForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading && !error">
+    <div class="row">
+      <h2 class="form--title">
+        Revisar Justificación
+      </h2>
+    </div>
+
+    <!-- Justification Information (Read-only) -->
+    <div class="justification-info">
+      <h3>Información de la Justificación</h3>
+      
+      <div class="row">
+        <div class="input-field">
+          <label>Observación del Empleado</label>
+          <textarea
+            rows="3"
+            [value]="justificationData?.justificationObservation || ''"
+            readonly
+            class="readonly-input">
+          </textarea>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="input-field">
+          <label>Archivo Adjunto</label>
+
+          <div *ngIf="justificationData?.fileContent; else noFile" class="file-info">
+            <div class="file-details">
+              <span class="file-name">{{ justificationData?.fileName }}</span>
+              <span class="file-size">({{ getFileSize() }})</span>
+            </div>
+
+            <button 
+              type="button" 
+              class="download-button"
+              (click)="downloadFile()"
+              title="Descargar archivo">
+              📎 Descargar archivo
+            </button>
+
+            <div *ngIf="isImageFile()" class="image-preview">
+              <img 
+                [src]="getImageDataUrl()" 
+                [alt]="justificationData?.fileName"
+                class="preview-image"
+                loading="lazy">
+            </div>
+          </div>
+
+          <ng-template #noFile>
+            <div class="no-file">
+              <span>No hay archivo adjunto</span>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <!-- Check Decision Section -->
+    <div class="check-section">
+      <h3>Decisión de Revisión</h3>
+      
+      <!-- Submit Error -->
+      <div *ngIf="submitError" class="error-message">
+        {{ submitError }}
+      </div>
+
+      <div class="row">
+        <div class="input-field">
+          <label>Decisión *</label>
+          <div class="approval-buttons">
+            <button 
+              type="button"
+              class="approval-btn approve-btn"
+              [class.active]="checkForm.get('checkApproval')?.value === true"
+              (click)="onApprovalChange(true)">
+              ✓ Aprobar
+            </button>
+            <button 
+              type="button"
+              class="approval-btn reject-btn"
+              [class.active]="checkForm.get('checkApproval')?.value === false"
+              (click)="onApprovalChange(false)">
+              ✗ Rechazar
+            </button>
+          </div>
+          <div *ngIf="checkApprovalInvalid" class="error-text">
+            Debe seleccionar una decisión
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="input-field">
+          <label for="checkReason">
+            Razón de la decisión *
+            <span class="help-text">
+              ({{ checkForm.get('checkApproval')?.value === true ? 'Motivo de aprobación' : 'Motivo de rechazo' }})
+            </span>
+          </label>
+          <textarea
+            id="checkReason"
+            rows="4"
+            formControlName="checkReason"
+            [class.error]="checkReasonInvalid"
+            placeholder="Ingrese la razón detallada de su decisión...">
+          </textarea>
+          <div class="char-count">
+            {{ checkForm.get('checkReason')?.value?.length || 0 }}/500 caracteres
+          </div>
+          <div *ngIf="checkReasonInvalid" class="error-text">
+            {{ getCheckReasonError() }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form--actions">
+      <button 
+        type="button" 
+        (click)="cancel()" 
+        class="cancel-button"
+        [disabled]="isSubmitting">
+        Cancelar
+      </button>
+      <button 
+        type="submit" 
+        class="submit-button"
+        [disabled]="checkForm.invalid || isSubmitting">
+        <span *ngIf="isSubmitting">Procesando...</span>
+        <span *ngIf="!isSubmitting">
+          {{ checkForm.get('checkApproval')?.value === true ? 'Aprobar Justificación' : 
+             checkForm.get('checkApproval')?.value === false ? 'Rechazar Justificación' : 'Procesar' }}
+        </span>
+      </button>
+    </div>
+  </form>
+</div>

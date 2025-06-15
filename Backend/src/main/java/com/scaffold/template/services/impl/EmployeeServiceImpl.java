@@ -4,8 +4,10 @@ import com.scaffold.template.dtos.EmployeeDto;
 import com.scaffold.template.dtos.EmployeeShiftDto;
 import com.scaffold.template.entities.AreaEntity;
 import com.scaffold.template.entities.EmployeeEntity;
+import com.scaffold.template.models.Area;
 import com.scaffold.template.models.Employee;
 import com.scaffold.template.models.EmployeeShift;
+import com.scaffold.template.repositories.AreaRepository;
 import com.scaffold.template.repositories.EmployeeRepository;
 import com.scaffold.template.services.EmployeeService;
 import com.scaffold.template.services.EmployeeShiftService;
@@ -30,6 +32,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     private EmployeeShiftService shiftService;
 
     @Autowired
+    private AreaRepository areaRepository;
+
+    @Autowired
     private ModelMapper modelMapper;
 
 
@@ -46,42 +51,44 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public List<Employee> getEmployeeList() {
+    public List<EmployeeDto> getEmployeeList() {
         List<EmployeeEntity> employeeEntities = employeeRepository.findAll();
         List<Employee> auxReturn = new ArrayList<Employee>();
         for (EmployeeEntity e : employeeEntities){
-            auxReturn.add(modelMapper.map(e,Employee.class));
+            if (e.getEmployeeState() ==1L ){
+                auxReturn.add(modelMapper.map(e,Employee.class));
+            }
         }
-        return auxReturn;
+        return auxReturn.stream().map(e -> modelMapper.map(e, EmployeeDto.class)).toList();
     }
 
     @Override
-    public Employee createEmployee(EmployeeDto employeeDto) {
+    public Employee createEmployee(EmployeeDto employeeDto, Long userId) {
         EmployeeEntity auxEntity = (modelMapper.map(employeeDto,EmployeeEntity.class));
-        auxEntity.setAuditUser(1L);
+        auxEntity.setAuditUser(userId);
         auxEntity.setEmployeeState(1L);
         auxEntity.setEmployeeArea(new AreaEntity(1L,"C",1L,1L,1L));
         auxEntity = employeeRepository.save(auxEntity);
         for (EmployeeShiftDto s : employeeDto.getEmployeeShifts()){
             s.setEmployeeId(auxEntity.getEmployeeId());
-            shiftService.createShift(modelMapper.map(s, EmployeeShift.class));
+            shiftService.createShift(modelMapper.map(s, EmployeeShift.class), userId);
         }
         return modelMapper.map(auxEntity,Employee.class);
     }
 
     @Override
-    public Employee updateEmployee(EmployeeDto employeeDto, Boolean changeTime) {
+    public Employee updateEmployee(EmployeeDto employeeDto, Boolean changeTime, Long userId) {
         Optional<EmployeeEntity> entity = employeeRepository.findById(employeeDto.getEmployeeId());
         if (entity.isPresent()) {
             EmployeeEntity employeeEntity = modelMapper.map(employeeDto, EmployeeEntity.class);
             employeeEntity.setEmployeeId(employeeDto.getEmployeeId());
-            employeeEntity.setAuditUser(1L);
+            employeeEntity.setAuditUser(userId);
             employeeEntity.setEmployeeState(1L);
             employeeRepository.save(employeeEntity);
             if (changeTime) {
-                shiftService.deleteShiftsByEmployee(entity.get().getEmployeeId());
+                shiftService.deleteShiftsByEmployee(entity.get().getEmployeeId(), userId);
                 for (EmployeeShiftDto s : employeeDto.getEmployeeShifts()) {
-                    shiftService.createShift(modelMapper.map(s, EmployeeShift.class));
+                    shiftService.createShift(modelMapper.map(s, EmployeeShift.class), userId);
                 }
             }
         }
@@ -89,11 +96,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public boolean deleteEmployee(Long employeeId) {
+    public boolean deleteEmployee(Long employeeId, Long userId) {
         boolean auxReturn = false;
         Optional<EmployeeEntity> entity = employeeRepository.findById(employeeId);
         if (entity.isPresent()) {
             EmployeeEntity auxEntity = entity.get();
+            auxEntity.setAuditUser(userId);
             auxEntity.setEmployeeState(0L);
             employeeRepository.save(auxEntity);
             auxReturn = true;
@@ -102,8 +110,15 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Page<EmployeeDto> getEmployeesPaged(int page, int size, String search) {
+    public Page<EmployeeDto> getEmployeesPaged(int page, int size, String search, Long userId) {
+        Employee employee = this.getEmployeeByUserId(userId);
+
+        if (areaRepository.existsByAreaResponsible(employee.getEmployeeId())){
+            return this.getEmployeesPagedByArea(page, size,search, userId);
+        }
+
         Pageable pageable = PageRequest.of(page, size);
+
 
         Page<EmployeeEntity> employeePage;
 
@@ -114,6 +129,38 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         return employeePage.map(entity -> modelMapper.map(entity, EmployeeDto.class));
+    }
+
+    @Override
+    public Page<EmployeeDto> getEmployeesPagedByArea(int page, int size,String search ,Long userId) {
+        Optional<EmployeeEntity> responsible = employeeRepository.findByUserId(userId);
+        if (responsible.isEmpty()){
+            throw new IllegalArgumentException("The user isn't registered to an employee");
+        }
+
+        Optional<AreaEntity> area = areaRepository.findByAreaResponsible(responsible.get().getEmployeeId());
+        if (area.isEmpty()){
+            throw new IllegalArgumentException("The user isn't responsible of an area");
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<EmployeeEntity> employeePage = employeeRepository.searchByAreaId(area.get().getId(), search,pageable);
+
+        return employeePage.map(entity -> modelMapper.map(entity, EmployeeDto.class));
+    }
+
+    @Override
+    public Employee getEmployeeByEmail(String employeeEmail) {
+        Optional<EmployeeEntity> entity = employeeRepository.findByEmail(employeeEmail);
+
+        return entity.map(employeeEntity -> modelMapper.map(employeeEntity, Employee.class)).orElse(null);
+    }
+
+    @Override
+    public Employee getEmployeeByUserId(Long userId) {
+        Optional<EmployeeEntity> entity = employeeRepository.findByUserId(userId);
+        return entity.map(employeeEntity -> modelMapper.map(employeeEntity, Employee.class)).orElse(null);
     }
 
 }

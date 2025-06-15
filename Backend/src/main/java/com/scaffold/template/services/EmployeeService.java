@@ -10,9 +10,12 @@ import java.util.List;
 @Service
 public interface EmployeeService {
     Employee getEmployee(Long id);
-    List<Employee> getEmployeeList();
-    Employee createEmployee(EmployeeDto employeeDto);
-    Employee updateEmployee(EmployeeDto employeeDto, Boolean changeTime);
-    boolean deleteEmployee(Long employeeId);
-    Page<EmployeeDto> getEmployeesPaged(int page, int size, String search);
+    List<EmployeeDto> getEmployeeList();
+    Employee createEmployee(EmployeeDto employeeDto, Long userId);
+    Employee updateEmployee(EmployeeDto employeeDto, Boolean changeTime , Long userId);
+    boolean deleteEmployee(Long employeeId , Long userId);
+    Page<EmployeeDto> getEmployeesPaged(int page, int size, String search, Long userId);
+    Page<EmployeeDto> getEmployeesPagedByArea(int page, int size, String search, Long userId);
+    Employee getEmployeeByEmail(String employeeEmail);
+    Employee getEmployeeByUserId(Long userId);
 }

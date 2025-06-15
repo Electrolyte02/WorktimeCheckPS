@@ -1,0 +1,201 @@
+.list--container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background-color: #fdfbff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.list--header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.list--header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+  border-bottom: 2px solid #d3cce3;
+  padding-bottom: 0.5rem;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.back-button:hover {
+  background-color: #5a6268;
+}
+
+.list--body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.list--actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.list--actions button {
+  background-color: #6a5acd;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.list--actions button:hover {
+  background-color: #5b50b4;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+  background-color: white;
+}
+
+.table thead {
+  background-color: #e9e3f5;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 0.75rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.table td button {
+  background-color: transparent;
+  border: none;
+  margin: 0 0.25rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.table td button:hover {
+  color: #6a5acd;
+}
+
+.reason-cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.approval-badge,
+.state-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.approval-badge.approved {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.approval-badge.rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.state-badge.active {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.state-badge.inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.approval-badge img,
+.state-badge img {
+  width: 14px;
+  height: 14px;
+}
+
+.list--pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.pagination-left label {
+  margin-right: 0.5rem;
+  font-weight: 500;
+}
+
+.pagination-left select {
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.pagination-right button {
+  margin: 0 0.2rem;
+  padding: 0.4rem 0.8rem;
+  border: none;
+  background-color: #eee;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.pagination-right button.active {
+  background-color: #6a5acd;
+  color: white;
+}
+
+.pagination-right button:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
+
+.view--button {
+  background-color: #17a2b8;
+  color: white;
+  border-radius: 3rem;
+  padding: 0.4rem 0.6rem;
+}
+
+.view--button:hover {
+  background-color: #138496;
+  color: white !important;
+}
+
+.text-center {
+  text-align: center;
+  font-style: italic;
+  color: #666;
+}

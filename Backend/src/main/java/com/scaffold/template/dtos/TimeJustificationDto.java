@@ -20,7 +20,13 @@ public class TimeJustificationDto {
 
     private String justificationUrl;
 
-    private GetObjectResponse file;
+    // Changed from GetObjectResponse to String for Base64 encoded file content
+    private String fileContent;
+
+    // Added to store file metadata
+    private String fileName;
+    private String contentType;
+    private Long fileSize;
 
     private Long timeState;
 

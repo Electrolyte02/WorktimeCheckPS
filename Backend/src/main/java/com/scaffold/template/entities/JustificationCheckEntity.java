@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "Justification_Checks")
+@Table(name = "justification_checks")
 public class JustificationCheckEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,12 +1,11 @@
 package com.scaffold.template.controllers;
 
-import com.scaffold.template.dtos.EmployeeDto;
 import com.scaffold.template.models.Area;
-import com.scaffold.template.models.Employee;
 import com.scaffold.template.services.AreaService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,15 +32,17 @@ public class AreaController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Area> createArea(@RequestBody Area dto){
-        Area area = areaService.createArea(dto);
+    public ResponseEntity<Area> createArea(@RequestHeader("X-User-Id") Long userId,
+            @RequestBody Area dto){
+        Area area = areaService.createArea(dto, userId);
         return ResponseEntity.ok(area);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> deleteArea(@PathVariable Long id)
+    public ResponseEntity<Boolean> deleteArea(@RequestHeader("X-User-Id") Long userId,
+            @PathVariable Long id)
     {
-        if (areaService.deleteArea(id))
+        if (areaService.deleteArea(id, userId))
         {
             return ResponseEntity.ok(true);
         }
@@ -49,8 +50,18 @@ public class AreaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Area> updateArea(@RequestBody Area dto){
-        Area area = areaService.updateArea(dto);
+    public ResponseEntity<Area> updateArea(@RequestHeader("X-User-Id") Long userId,
+            @RequestBody Area dto){
+        Area area = areaService.updateArea(dto, userId);
         return ResponseEntity.ok(area);
+    }
+
+    @GetMapping("/paged")
+    public ResponseEntity<Page<Area>> getAreasPaged(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size
+    ) {
+        Page<Area> areas = areaService.getAreasPaged(page, size);
+        return ResponseEntity.ok(areas);
     }
 }

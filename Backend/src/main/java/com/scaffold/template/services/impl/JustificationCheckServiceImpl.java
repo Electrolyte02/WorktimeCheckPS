@@ -2,11 +2,14 @@ package com.scaffold.template.services.impl;
 
 import com.scaffold.template.entities.JustificationCheckEntity;
 import com.scaffold.template.entities.TimeJustificationEntity;
+import com.scaffold.template.models.Employee;
 import com.scaffold.template.models.JustificationCheck;
 import com.scaffold.template.models.TimeJustification;
 import com.scaffold.template.repositories.JustificationCheckRepository;
+import com.scaffold.template.services.EmployeeService;
 import com.scaffold.template.services.JustificationCheckService;
 import com.scaffold.template.services.TimeJustificationService;
+import org.apache.commons.lang3.NotImplementedException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,25 +25,30 @@ public class JustificationCheckServiceImpl implements JustificationCheckService 
     private JustificationCheckRepository checkRepository;
 
     @Autowired
+    private EmployeeService employeeService;
+
+    @Autowired
     private ModelMapper modelMapper;
 
     @Autowired
     private TimeJustificationService timeJustificationService;
 
     @Override
-    public JustificationCheck createCheck(JustificationCheck check) {
+    public JustificationCheck createCheck(JustificationCheck check, Long userId) {
         TimeJustification justification = timeJustificationService.getTimeJustificationById(check.getJustificationId());
         if (justification==null){
             throw new RuntimeException("Justification doesn't exist");
         }
         check.setCheckState(1L);
         timeJustificationService.changeJustificationState(check.getJustificationId(), check.getCheckApproval());
-        JustificationCheckEntity savedEntity = checkRepository.save(modelMapper.map(check, JustificationCheckEntity.class));
+        JustificationCheckEntity entity = modelMapper.map(check, JustificationCheckEntity.class);
+        entity.setCheckAudUser(userId);
+        JustificationCheckEntity savedEntity = checkRepository.save(entity);
         return modelMapper.map(savedEntity, JustificationCheck.class);
     }
 
     @Override
-    public JustificationCheck updateCheck(JustificationCheck check) {
+    public JustificationCheck updateCheck(JustificationCheck check, Long userId) {
         TimeJustification justification = timeJustificationService.getTimeJustificationById(check.getJustificationId());
         if (justification==null){
             throw new RuntimeException("Justification doesn't exist");
@@ -49,6 +57,7 @@ public class JustificationCheckServiceImpl implements JustificationCheckService 
         if (checkEntity.isPresent()){
             checkEntity.get().setCheckApproval(check.getCheckApproval());
             checkEntity.get().setCheckReason(check.getCheckReason());
+            checkEntity.get().setCheckAudUser(userId);
             checkRepository.save(checkEntity.get());
             return modelMapper.map(checkEntity.get(), JustificationCheck.class);
         }
@@ -56,10 +65,11 @@ public class JustificationCheckServiceImpl implements JustificationCheckService 
     }
 
     @Override
-    public boolean deleteCheck(Long checkId) {
+    public boolean deleteCheck(Long checkId, Long userId) {
         Optional<JustificationCheckEntity> checkEntity = checkRepository.findById(checkId);
         if (checkEntity.isPresent()){
             checkEntity.get().setCheckState(0L);
+            checkEntity.get().setCheckAudUser(userId);
             checkRepository.save(checkEntity.get());
             return true;
         }
@@ -76,11 +86,38 @@ public class JustificationCheckServiceImpl implements JustificationCheckService 
     }
 
     @Override
-    public Page<JustificationCheck> getChecksPaged(int page, int size) {
+    public Page<JustificationCheck> getChecksPaged(int page, int size, Long employeeId) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<JustificationCheckEntity> checkPage;
+
+        if (employeeId!=null){
+            checkPage = checkRepository.findByEmployeeId(employeeId, pageable);
+        }
+        else {
+            checkPage = checkRepository.findAll(pageable);
+        }
+
+        return checkPage.map(justificationCheckEntity ->
+                modelMapper.map(justificationCheckEntity, JustificationCheck.class));
+    }
+
+    @Override
+    public JustificationCheck getCheckByJustificationId(Long justificationId) {
+        JustificationCheckEntity checkEntity = checkRepository.findByJustificationId(justificationId);
+        if (checkEntity == null){
+            return null;
+        }
+        return modelMapper.map(checkEntity, JustificationCheck.class);
+    }
+
+    @Override
+    public Page<JustificationCheck> getChecksPagedByUserId(int page, int size, Long userId) {
+        Employee employee = employeeService.getEmployeeByUserId(userId);
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<JustificationCheckEntity> checkPage = checkRepository.searchPaged(pageable);
+        Page<JustificationCheckEntity> checkPage = checkRepository.findByEmployeeId(employee.getEmployeeId(), pageable);
 
-        return checkPage.map(justificationCheckEntity -> modelMapper.map(justificationCheckEntity, JustificationCheck.class));
+        return checkPage.map(justificationCheckEntity ->
+                modelMapper.map(justificationCheckEntity, JustificationCheck.class));
     }
 }

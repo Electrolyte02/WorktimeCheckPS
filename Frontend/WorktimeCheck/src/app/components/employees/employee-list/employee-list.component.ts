@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { EmployeeService } from '../../../services/Employee/employee.service';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-employee-list',
@@ -18,13 +19,16 @@ export class EmployeeListComponent implements OnInit {
   totalPagesArray: number[] = [];
   nameFilter: string = '';
   router: Router = inject(Router);
+  userRole:string | null = "";
 
   size: number = 10;
   page: number = 0;
 
   employeeService: EmployeeService = inject(EmployeeService);
+  private toastService:ToastrService = inject(ToastrService);
 
   ngOnInit(): void {
+    this.userRole = localStorage.getItem('role');
     this.fetchEmployees();
   }
 
@@ -76,7 +80,7 @@ confirmDelete() {
       },
       error: err => {
         console.error(err);
-        alert("Error al borrar el empleado");
+        this.toastService.error("Error al borrar el empleado", err.error);
         this.resetModal();
       }
     });

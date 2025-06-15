@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+
 @Repository
 public interface TimeJustificationRepository extends JpaRepository<TimeJustificationEntity, Long> {
     @Query("""
@@ -17,4 +19,14 @@ public interface TimeJustificationRepository extends JpaRepository<TimeJustifica
     WHERE t.employeeId = :employeeId
 """)
     Page<TimeJustificationEntity> findByEmployeeId(@Param("employeeId") Long employeeId, Pageable pageable);
+
+    @Query("""
+    SELECT COUNT(tj)\s
+    FROM TimeJustificationEntity tj\s
+    WHERE tj.time.timeDay BETWEEN :start AND :end\s
+      AND tj.timeState = :state
+""")
+    Long countByTimeDayBetweenAndState(@Param("start") LocalDateTime start,
+                                       @Param("end") LocalDateTime end,
+                                       @Param("state") Long state);
 }

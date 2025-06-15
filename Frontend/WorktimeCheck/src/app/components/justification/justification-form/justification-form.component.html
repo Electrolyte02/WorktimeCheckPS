@@ -2,7 +2,12 @@
   <form [formGroup]="justificationForm" (ngSubmit)="submitJustification()" enctype="multipart/form-data">
     <div class="row">
       <h2 class="form--title">
-        Justificación de {{ selectedDate | date: 'dd/MM/yyyy' }}
+        <ng-container *ngIf="employeeTime">
+          Justificación de {{ employeeTime?.timeDay | date: 'dd/MM/yyyy' }} - {{ employeeTime?.timeDay | date: 'HH:mm' }}
+        </ng-container>
+        <ng-container *ngIf="!employeeTime">
+          Justificación
+        </ng-container>
       </h2>
     </div>
 

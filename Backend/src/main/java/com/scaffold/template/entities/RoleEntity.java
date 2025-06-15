@@ -3,13 +3,10 @@ package com.scaffold.template.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Set;
-
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "Roles")
 public class RoleEntity {
 
     @Id

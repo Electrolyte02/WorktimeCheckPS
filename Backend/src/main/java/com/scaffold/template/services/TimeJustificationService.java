@@ -14,11 +14,12 @@ import java.security.NoSuchAlgorithmException;
 
 @Service
 public interface TimeJustificationService {
-    TimeJustification createTimeJustification(TimeJustification justification, MultipartFile file) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException;
-    TimeJustification updateTimeJustification(TimeJustification justification, MultipartFile file) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException;
-    boolean deleteTimeJustification(TimeJustification justification);
+    TimeJustification createTimeJustification(TimeJustification justification, MultipartFile file, Long userId) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException;
+    TimeJustification updateTimeJustification(TimeJustification justification, MultipartFile file, Long userId) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException;
+    boolean deleteTimeJustification(TimeJustification justification, Long userId);
     TimeJustificationDto getTimeJustification(Long justificationId) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException;
     Page<EmployeeJustificationDto> getJustificationsPaged(int page, int size, Long employeeId);
     TimeJustification changeJustificationState(Long justificationId, boolean approved);
     TimeJustification getTimeJustificationById(Long justificationId);
+    Page<EmployeeJustificationDto> getJustificationsPagedByUser(int page, int size, Long userId);
 }

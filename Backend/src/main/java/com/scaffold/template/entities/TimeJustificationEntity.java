@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "Time_justifications")
+@Table(name = "time_justifications")
 public class TimeJustificationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

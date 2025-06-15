@@ -2,9 +2,12 @@ package com.scaffold.template.services.impl;
 
 import com.scaffold.template.entities.EmployeeEntity;
 import com.scaffold.template.entities.EmployeeTimeEntity;
+import com.scaffold.template.models.Area;
+import com.scaffold.template.models.Employee;
 import com.scaffold.template.models.EmployeeTime;
 import com.scaffold.template.repositories.EmployeeTimeRepository;
 import com.scaffold.template.services.AreaService;
+import com.scaffold.template.services.EmployeeService;
 import com.scaffold.template.services.EmployeeTimeService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,9 @@ public class EmployeeTimeServiceImpl implements EmployeeTimeService {
     private EmployeeTimeRepository timeRepository;
 
     @Autowired
+    private EmployeeService employeeService;
+
+    @Autowired
     private AreaService areaService;
 
     @Autowired
@@ -30,12 +36,21 @@ public class EmployeeTimeServiceImpl implements EmployeeTimeService {
 
 
     @Override
-    public Page<EmployeeTime> getEmployeeTimesByEmployee(int page, int size, Long employeeId) {
+    public Page<EmployeeTime> getEmployeeTimesByEmployee(int page, int size, Long employeeId, Long userId) {
+        Employee employee = employeeService.getEmployeeByUserId(userId);
+
+        if (employeeId==null && areaService.areaResponsibleExists(employee.getEmployeeId())){
+            return this.getEmployeeTimesByArea(page, size, employee.getEmployeeId());
+        }
+
         Pageable pageable = PageRequest.of(page, size);
         Page<EmployeeTimeEntity> timePage;
-
-        timePage = timeRepository.searchByEmployeeId(employeeId, pageable);
-
+        if (employeeId == null) {
+            timePage = timeRepository.findAll(pageable);
+        }
+        else {
+            timePage = timeRepository.searchByEmployeeId(employeeId, pageable);
+        }
         return timePage.map(employeeTimeEntity -> modelMapper.map(employeeTimeEntity, EmployeeTime.class));
     }
 
@@ -63,5 +78,25 @@ public class EmployeeTimeServiceImpl implements EmployeeTimeService {
             return modelMapper.map(timeEntity,EmployeeTime.class);
         }
         return null;
+    }
+
+    @Override
+    public Page<EmployeeTime> getEmployeeTimesByUserId(int page, int size, Long userId) {
+        Employee employee = employeeService.getEmployeeByUserId(userId);
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<EmployeeTimeEntity> timePage = timeRepository.searchByEmployeeId(employee.getEmployeeId(), pageable);
+        return timePage.map(employeeTimeEntity -> modelMapper.map(employeeTimeEntity, EmployeeTime.class));
+    }
+
+    @Override
+    public Page<EmployeeTime> getEmployeeTimesByArea(int page, int size, Long employeeId) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Area area = areaService.getAreaByResponsible(employeeId);
+
+        Page<EmployeeTimeEntity> timePage = timeRepository.findByAreaId(area.getId(), pageable);
+
+        return timePage.map(employeeTimeEntity -> modelMapper.map(employeeTimeEntity, EmployeeTime.class));
     }
 }

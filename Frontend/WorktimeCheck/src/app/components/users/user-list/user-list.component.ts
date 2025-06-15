@@ -4,6 +4,7 @@ import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../services/User/user.service';
 import { UserInfoDto } from '../../../models/userInfoDto';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-user-list',
@@ -25,6 +26,7 @@ export class UserListComponent implements OnInit {
 
   private router = inject(Router);
   private userService = inject(UserService);
+  private toastService:ToastrService = inject(ToastrService);
 
   ngOnInit(): void {
     this.fetchUsers();
@@ -71,7 +73,7 @@ export class UserListComponent implements OnInit {
         },
         error: err => {
           console.error(err);
-          alert("Error al borrar el usuario");
+          this.toastService.error("Error al borrar el usuario", err.error);
           this.resetModal();
         }
       });

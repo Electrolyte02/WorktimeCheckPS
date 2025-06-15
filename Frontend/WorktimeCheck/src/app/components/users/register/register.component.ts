@@ -4,6 +4,7 @@ import { UserService } from '../../../services/User/user.service';
 import { UserDto } from '../../../models/userDto';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-register',
@@ -15,6 +16,7 @@ import { FormsModule } from '@angular/forms';
 export class RegisterComponent {
   private router = inject(Router);
   private userService:UserService = inject(UserService);
+  private toastService:ToastrService = inject(ToastrService);
 
   user: UserDto = {
     userName: '',
@@ -25,11 +27,11 @@ export class RegisterComponent {
   onSubmit() {
     this.userService.register(this.user).subscribe({
       next: () => {
-        alert('Registro exitoso');
+        this.toastService.success('Registro exitoso', 'Exito');
         this.router.navigate(['login']);
       },
-      error: () => {
-        alert('Error en el registro');
+      error: (err) => {
+        this.toastService.error('Error en el registro', err.error)
       }
     });
   }

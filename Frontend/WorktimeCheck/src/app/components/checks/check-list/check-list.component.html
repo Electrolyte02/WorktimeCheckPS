@@ -1,0 +1,113 @@
+<div class="list--container">
+  <div class="list--header">
+    <h2>Lista de Verificaciones</h2>
+  </div>
+  
+  <div class="list--body">
+    <div class="list--actions">
+      <button>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          fill="currentColor"
+          class="bi bi-file-earmark-excel"
+          viewBox="0 0 16 16"
+        >
+          <path
+            d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"
+          />
+          <path
+            d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"
+          />
+        </svg>
+      </button>
+    </div>
+    
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Aprobación</th>
+          <th scope="col">Razón</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (check of checkList; track $index) {
+        <tr>
+          <td>
+            @if (check.checkApproval) {
+              <span class="approval-badge approved">
+                <img src="assets/check2.svg" alt="Aprobado">
+                {{ getApprovalText(check.checkApproval) }}
+              </span>
+            } @else {
+              <span class="approval-badge rejected">
+                <img src="assets/slash-circle.svg" alt="Rechazado">
+                {{ getApprovalText(check.checkApproval) }}
+              </span>
+            }
+          </td>
+          <td class="reason-cell">{{ check.checkReason }}</td>
+          <td>
+            @if (check.checkState == 0) {
+              <span class="state-badge inactive">
+                <img src="assets/slash-circle.svg" alt="Inactivo">
+                {{ getStateText(check.checkState) }}
+              </span>
+            } @else if (check.checkState == 1) {
+              <span class="state-badge active">
+                <img src="assets/check2.svg" alt="Activo">
+                {{ getStateText(check.checkState) }}
+              </span>
+            }
+          </td>
+          <td>
+            <button class="view--button" (click)="viewCheckDetails(check.checkId)">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-eye"
+                viewBox="0 0 16 16"
+              >
+                <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+                <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+              </svg>
+            </button>
+          </td>
+        </tr>
+        }
+        @empty {
+        <tr>
+          <td colspan="6" class="text-center">No se encontraron verificaciones para este empleado</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="list--pagination">
+    <div class="pagination-left">
+      <label for="size-select">Cantidad:</label>
+      <select id="size-select" [(ngModel)]="size" (change)="fetchChecks()">
+        <option [value]="5">5</option>
+        <option [value]="10">10</option>
+        <option [value]="20">20</option>
+      </select>
+    </div>
+    <div class="pagination-right">
+      <button (click)="previousPage()" [disabled]="page === 0">«</button>
+      <ng-container *ngFor="let p of totalPagesArray; let i = index">
+        <button (click)="goToPage(i)" [class.active]="page === i">
+          {{ i + 1 }}
+        </button>
+      </ng-container>
+      <button (click)="nextPage()" [disabled]="page >= totalPages - 1">
+        »
+      </button>
+    </div>
+  </div>
+</div>

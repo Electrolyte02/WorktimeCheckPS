@@ -21,6 +21,8 @@ public class Employee {
 
     private String employeeDocument;
 
+    private String employeeEmail;
+
     private Long employeeState;
 
     private Long auditUser;

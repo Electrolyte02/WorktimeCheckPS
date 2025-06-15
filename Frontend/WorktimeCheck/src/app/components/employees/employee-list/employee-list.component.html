@@ -41,6 +41,7 @@
         <tr>
           <th scope="col">Nombre</th>
           <th scope="col">Documento</th>
+          <th scope="col">Email</th>
           <th scope="col">Area</th>
           <th scope="col">Estado</th>
           <th scope="col">Acciones</th>
@@ -51,6 +52,7 @@
         <tr>
           <td>{{ e.employeeName + " " + e.employeeLastName }}</td>
           <td>{{ e.employeeDocument }}</td>
+          <td>{{ e.employeeEmail }}</td>
           <td>{{ e.employeeArea.description }}</td>
           @if (e.employeeState==0) {
             <td><img src="assets/slash-circle.svg" alt="Deshabilitado" style="font-palette: red;"></td>
@@ -94,6 +96,11 @@
               </svg>
             </button>
           </td>
+        </tr>
+        }
+        @empty {
+        <tr>
+          <td colspan="5" class="text-center">No se encontraron empleados</td>
         </tr>
         }
       </tbody>

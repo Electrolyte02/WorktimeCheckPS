@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -6,53 +6,75 @@ import {
   Validators,
 } from '@angular/forms';
 import { JustificationService } from '../../../services/Justification/justification.service';
-import { DatePipe } from '@angular/common';
-import { TimeJustifcation } from '../../../models/timeJustification';
+import { TimeService } from '../../../services/Time/time.service';
+import { DatePipe, NgIf } from '@angular/common';
+import { EmployeeTime } from '../../../models/employeeTime';
+import { ToastrService } from 'ngx-toastr';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-justification-form',
-  imports: [DatePipe, ReactiveFormsModule],
+  imports: [DatePipe, ReactiveFormsModule, NgIf],
   templateUrl: './justification-form.component.html',
   styleUrl: './justification-form.component.css',
 })
 export class JustificationFormComponent implements OnInit {
-  @Input() selectedDate!: string;
-  @Input() timeId!: number;
+  timeId!: number;
+  employeeTime?: EmployeeTime;
   justificationForm!: FormGroup;
   selectedFile: File | null = null;
   
   private fb: FormBuilder = inject(FormBuilder);
   private justificationService: JustificationService = inject(JustificationService);
+  private timeService: TimeService = inject(TimeService);
+  private toastService: ToastrService = inject(ToastrService);
+  private router: Router = inject(Router);
+  private route: ActivatedRoute = inject(ActivatedRoute);
 
   ngOnInit(): void {
     this.justificationForm = this.fb.group({
       justificationObservation: ['', Validators.required],
     });
     
-    // Solo asignar si no viene por @Input
-    if (!this.timeId) {
-      this.timeId = 1;
-    }
+    // Get timeId from route parameters
+    this.route.params.subscribe(params => {
+      this.timeId = +params['timeId']; // Convert to number
+      if (this.timeId) {
+        this.loadEmployeeTime();
+      }
+    });
+  }
+
+  private loadEmployeeTime(): void {
+    this.timeService.getEmployeeTimeById(this.timeId).subscribe({
+      next: (employeeTime: EmployeeTime) => {
+        this.employeeTime = employeeTime;
+      },
+      error: (err: any) => {
+        console.error('Error loading employee time:', err);
+        this.toastService.error('Error al cargar los datos del tiempo');
+      }
+    });
   }
 
   onFileSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
       this.selectedFile = file;
-      console.log('Archivo seleccionado:', file.name, 'Tipo:', file.type, 'Tamaño:', file.size);
+      this.toastService.info('Archivo seleccionado:'+ file.name+ ' Tipo:'+ file.type+ ' Tamaño:'+ file.size);
     }
   }
 
   submitJustification(): void {
     if (!this.justificationForm.valid) {
       console.error('Formulario no válido');
-      alert('Por favor completa todos los campos requeridos');
+      this.toastService.error('Por favor completa todos los campos requeridos');
       return;
     }
 
     if (!this.selectedFile) {
       console.error('No se ha seleccionado archivo');
-      alert('Por favor selecciona un archivo');
+      this.toastService.error('Por favor selecciona un archivo');
       return;
     }
 
@@ -86,13 +108,13 @@ export class JustificationFormComponent implements OnInit {
     this.justificationService.sendJustification(formData).subscribe({
       next: (res: any) => {
         console.log('Respuesta del servidor:', res);
-        alert('Justificación enviada correctamente');
+        this.toastService.success('Justificación enviada correctamente');
         this.resetForm();
       },
       error: (err: any) => {
         console.error('Error completo:', err);
         const errorMessage = err.error?.message || err.message || 'Error desconocido';
-        alert('Error al enviar justificación: ' + errorMessage);
+        this.toastService.error('Error al enviar justificación: ', errorMessage);
       },
     });
   }
@@ -108,7 +130,6 @@ export class JustificationFormComponent implements OnInit {
   }
 
   cancel(): void {
-    this.resetForm();
-    // Aquí puedes agregar lógica adicional para cancelar
+    this.router.navigate(['timeList']);
   }
 }

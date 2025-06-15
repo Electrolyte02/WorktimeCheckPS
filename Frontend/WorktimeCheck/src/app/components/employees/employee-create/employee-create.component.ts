@@ -13,6 +13,7 @@ import { EmployeeService } from '../../../services/Employee/employee.service';
 import { Employee } from '../../../models/employee';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AreaService } from '../../../services/Area/area.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-employee-create',
@@ -27,6 +28,7 @@ export class EmployeeCreateComponent implements OnInit {
 
   employeeService = inject(EmployeeService);
   areaService = inject(AreaService);
+  private toastService:ToastrService = inject(ToastrService);
   router = inject(Router);
   route = inject(ActivatedRoute);
 
@@ -50,15 +52,16 @@ export class EmployeeCreateComponent implements OnInit {
     firstName: new FormControl('', [Validators.required]),
     lastName: new FormControl('', [Validators.required]),
     document: new FormControl('', [Validators.required]),
+    email: new FormControl('', [Validators.required, Validators.email]),
     entryTime: new FormControl(''),
     exitTime: new FormControl(''),
     area: new FormControl(1, Validators.required),
     distinctSchedules: new FormControl(false),
+    changeSchedules: new FormControl(false), // New control for schedule changes
     daySchedules: new FormArray([]),
   });
 
   ngOnInit(): void {
-    this
     this.areaService.getAreas().subscribe(response => {
       this.areas=response;
     });
@@ -73,6 +76,7 @@ export class EmployeeCreateComponent implements OnInit {
             firstName: employee.employeeName,
             lastName: employee.employeeLastName,
             document: employee.employeeDocument,
+            email: employee.employeeEmail,
             area: employee.employeeArea.id,
             entryTime: employee.employeeShifts[0]?.shiftEntry || '',
             exitTime: employee.employeeShifts[0]?.shiftExit || '',
@@ -84,7 +88,7 @@ export class EmployeeCreateComponent implements OnInit {
         },
         error: (err) => {
           console.error(err);
-          alert('No se pudo cargar el empleado');
+          this.toastService.error('No se pudo cargar el empleado', err.error);
         },
       });
     }
@@ -191,36 +195,39 @@ export class EmployeeCreateComponent implements OnInit {
       employeeName: formValues.firstName as string,
       employeeLastName: formValues.lastName as string,
       employeeDocument: formValues.document as string,
+      employeeEmail: formValues.email as string,
       employeeArea: this.areas.find((a) => a.id == formValues.area)!,
       employeeState: 1,
       employeeShifts,
     };
 
     if (this.auxOperation) {
-      this.updateEmployee(employee);
+      // Pass the changeSchedules value to the update method
+      const changeSchedules = formValues.changeSchedules as boolean;
+      this.updateEmployee(employee, changeSchedules);
     } else {
       this.employeeService.createEmployee(employee).subscribe({
         next: () => {
-          alert('Empleado guardado exitosamente');
+          this.toastService.success('Empleado creado exitosamente');
           this.employeeForm.reset();
         },
         error: (err) => {
           console.error(err);
-          alert('Error al guardar el empleado');
+          this.toastService.error('Error al guardar el empleado', err.error);
         },
       });
     }
   }
 
-  updateEmployee(employee: Employee) {
-    this.employeeService.updateEmployee(employee).subscribe({
+  updateEmployee(employee: Employee, changeSchedules: boolean = false) {
+    this.employeeService.updateEmployee(employee, changeSchedules).subscribe({
       next: () => {
-        alert('Empleado actualizado exitosamente');
+        this.toastService.success('Empleado actualizado exitosamente');
         this.router.navigate(['/employeeList']);
       },
       error: (err) => {
         console.error(err);
-        alert('Error al actualizar el empleado');
+        this.toastService.error('Error al actualizar el empleado', err.error);
       },
     });
   }

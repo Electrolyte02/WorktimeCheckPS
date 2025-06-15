@@ -11,6 +11,7 @@ import lombok.Setter;
 @Setter
 public class Area {
     private Long id;
+    private Long areaResponsible;
     private String description;
     private Long state;
     private Long user;

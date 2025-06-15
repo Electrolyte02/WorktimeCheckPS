@@ -1,0 +1,74 @@
+<div class="form-container">
+  <!-- Loading indicator -->
+  <div *ngIf="isLoading" class="loading-container">
+    <p>Cargando justificación...</p>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="error-container">
+    <p class="error-message">{{ error }}</p>
+    <button type="button" (click)="loadJustificationData()" class="form--retry-button">
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Main form -->
+  <form [formGroup]="justificationForm" *ngIf="!isLoading && !error">
+    <div class="row">
+      <h2 class="form--title">
+        Justificación de {{ selectedDate | date: 'dd/MM/yyyy' }}
+      </h2>
+    </div>
+
+    <div class="row">
+      <div class="input-field">
+        <label for="observation">Observación</label>
+        <textarea
+          id="observation"
+          rows="4"
+          formControlName="justificationObservation"
+          readonly
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="input-field">
+        <label>Archivo Adjunto</label>
+
+        <div *ngIf="justificationData?.fileContent; else noFile" class="file-info">
+          <div class="file-details">
+            <span class="file-name">{{ justificationData?.fileName }}</span>
+            <span class="file-size">({{ getFileSize() }})</span>
+          </div>
+
+          <button 
+            type="button" 
+            class="download-button"
+            (click)="downloadFile()"
+            title="Descargar archivo">
+            📎 Descargar archivo
+          </button>
+
+          <div *ngIf="isImageFile()" class="image-preview">
+            <img 
+              [src]="getImageDataUrl()" 
+              [alt]="justificationData?.fileName"
+              class="preview-image"
+              loading="lazy">
+          </div>
+        </div>
+
+        <ng-template #noFile>
+          <div class="no-file">
+            <span>No hay archivo adjunto</span>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+    <div class="form--actions">
+      <button type="button" (click)="cancel()">Volver</button>
+    </div>
+  </form>
+</div>

@@ -8,8 +8,10 @@ import java.util.List;
 
 @Service
 public interface EmployeeTimeService {
-    Page<EmployeeTime> getEmployeeTimesByEmployee(int page, int size, Long employeeId);
+    Page<EmployeeTime> getEmployeeTimesByEmployee(int page, int size, Long employeeId, Long userId);
     EmployeeTime updateEmployeeTime(EmployeeTime employeeTime);
     boolean deleteEmployeeTime(Long timeId);
     EmployeeTime getEmployeeTimeById(Long id);
+    Page<EmployeeTime> getEmployeeTimesByUserId(int page, int size, Long userId);
+    Page<EmployeeTime> getEmployeeTimesByArea(int page, int size, Long employeeId);
 }

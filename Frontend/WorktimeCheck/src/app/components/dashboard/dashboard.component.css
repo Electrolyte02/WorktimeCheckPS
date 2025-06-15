@@ -1,0 +1,117 @@
+.dashboard-container {
+  padding: 20px;
+}
+
+.dashboard-container .dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.dashboard-container .dashboard-header h1 {
+  margin: 0;
+  color: #333;
+}
+
+.dashboard-container .dashboard-header .date-range-selector {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.dashboard-container .dashboard-header .date-range-selector label {
+  font-weight: 500;
+  color: #666;
+}
+
+.dashboard-container .dashboard-header .date-range-selector .date-input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.dashboard-container .dashboard-header .date-range-selector .date-input:focus {
+  outline: none;
+  border-color: #5AA454;
+  box-shadow: 0 0 0 2px rgba(90, 164, 84, 0.2);
+}
+
+.dashboard-container .loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 18px;
+  color: #666;
+}
+
+.dashboard-container .kpis-section {
+  margin-bottom: 40px;
+}
+
+.dashboard-container .kpis-section h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.dashboard-container .kpis-section .kpis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.dashboard-container .kpis-section .kpis-grid .kpi-card {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  border-left: 4px solid #5AA454;
+}
+
+.dashboard-container .kpis-section .kpis-grid .kpi-card .kpi-title {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.dashboard-container .kpis-section .kpis-grid .kpi-card .kpi-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: #333;
+}
+
+.dashboard-container .charts-section .chart-container {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.dashboard-container .charts-section .chart-container h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 10px;
+  }
+
+  .dashboard-container .dashboard-header {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .dashboard-container .dashboard-header .date-range-selector {
+    flex-wrap: wrap;
+  }
+
+  .dashboard-container .kpis-section .kpis-grid {
+    grid-template-columns: 1fr;
+  }
+}

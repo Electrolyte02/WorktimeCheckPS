@@ -20,7 +20,7 @@
 
     <div class="row">
       <div class="input-field">
-        <label for="document">Documento</label>
+        <label for="document">CUIL</label>
         <input
           type="text"
           id="document"
@@ -38,8 +38,32 @@
         </select>
       </div>
     </div>
+    
+    <div class="row">
+      <div class="input-field">
+        <label for="email">Email</label>
+        <input
+          type="text"
+          id="email"
+          formControlName="email"
+          [disabled]="auxOperation"
+        />
+      </div>
+    </div>
 
-    <div class="form-section">
+    <!-- Change Schedules Checkbox - Only visible during editing -->
+    <div class="row" *ngIf="auxOperation">
+      <div class="checkbox-group">
+        <input
+          type="checkbox"
+          id="cambiar-horarios"
+          formControlName="changeSchedules"
+        />
+        <label for="cambiar-horarios">Cambiar Horarios</label>
+      </div>
+    </div>
+
+    <div class="form-section" *ngIf="!auxOperation || employeeForm.get('changeSchedules')?.value">
       <h3>Horarios</h3>
 
       <div class="days">

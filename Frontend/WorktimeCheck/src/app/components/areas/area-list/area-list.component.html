@@ -1,1 +1,172 @@
-<p>area-list works!</p>
+<div class="list--container">
+  <div class="list--header">
+    <h2>Lista de Areas</h2>
+  </div>
+  <div class="list--body">
+    <div class="list--actions">
+      <button (click)="openAddModal()">
+        +
+      </button>
+      <button>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          fill="currentColor"
+          class="bi bi-file-earmark-excel"
+          viewBox="0 0 16 16"
+        >
+          <path
+            d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"
+          />
+          <path
+            d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"
+          />
+        </svg>
+      </button>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Nombre</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (a of areaList; track $index) {
+        <tr>
+          <td>{{ a.description}}</td>
+          @if (a.state==0) {
+            <td><img src="assets/slash-circle.svg" alt="Deshabilitado" style="font-palette: red;"></td>
+          } @else if (a.state==1) {
+          <td><img src="assets/check2.svg" alt="Habilitado"></td>
+          }
+          <td>
+            <button class="edit--button" (click)="editArea(a.id)">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-pencil-square"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"
+                />
+                <path
+                  fill-rule="evenodd"
+                  d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"
+                />
+              </svg>
+            </button>
+            <button
+              class="delete--button"
+              (click)="deleteArea(a.id)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-trash-fill"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"
+                />
+              </svg>
+            </button>
+          </td>
+        </tr>
+        }
+        @empty {
+        <tr>
+          <td colspan="5" class="text-center">No se encontraron empleados</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <div class="list--pagination">
+    <div class="pagination-left">
+      <label for="size-select">Cantidad:</label>
+      <select id="size-select" [(ngModel)]="size" (change)="fetchAreas()">
+        <option [value]="5">5</option>
+        <option [value]="10">10</option>
+        <option [value]="20">20</option>
+      </select>
+    </div>
+    <div class="pagination-right">
+      <button (click)="previousPage()" [disabled]="page === 0">«</button>
+      <ng-container *ngFor="let p of totalPagesArray; let i = index">
+        <button (click)="goToPage(i)" [class.active]="page === i">
+          {{ i + 1 }}
+        </button>
+      </ng-container>
+      <button (click)="nextPage()" [disabled]="page >= totalPages - 1">
+        »
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Area Modal -->
+@if (showAddModal) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <h3>{{ isEditMode ? 'Editar Área' : 'Agregar Nueva Área' }}</h3>
+      <form (ngSubmit)="saveArea()" #areaForm="ngForm">
+        <div class="form-group">
+          <label for="description">Descripción:</label>
+          <input 
+            type="text" 
+            id="description" 
+            [(ngModel)]="newArea.description" 
+            name="description"
+            required
+            class="form-control"
+            placeholder="Ingrese la descripción del área">
+        </div>
+        
+        <div class="form-group">
+          <label for="responsible">Responsable del Área:</label>
+          <select 
+            id="responsible" 
+            [(ngModel)]="newArea.areaResponsible" 
+            name="areaResponsible"
+            required
+            class="form-control">
+            <option value="">Seleccione un empleado</option>
+            @for (employee of employees; track employee.employeeId) {
+              <option [value]="employee.employeeId">
+                {{ employee.employeeName }} {{ employee.employeeLastName }}
+              </option>
+            }
+          </select>
+        </div>
+        
+        <div class="modal-buttons">
+          <button type="submit" [disabled]="!areaForm.valid">
+            {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+          </button>
+          <button type="button" (click)="closeAddModal()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Delete Confirmation Modal -->
+@if (showConfirmModal) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <h3>¿Está seguro de querer eliminar el area seleccionada?</h3>
+      <div class="modal-buttons">
+        <button (click)="confirmDelete()">Sí, Eliminar</button>
+        <button (click)="cancelDelete()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+}

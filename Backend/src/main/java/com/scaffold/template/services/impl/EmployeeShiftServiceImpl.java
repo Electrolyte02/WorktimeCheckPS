@@ -32,33 +32,35 @@ public class EmployeeShiftServiceImpl implements EmployeeShiftService {
     }
 
     @Override
-    public EmployeeShift createShift(EmployeeShift shift) {
+    public EmployeeShift createShift(EmployeeShift shift, Long userId) {
         EmployeeShiftEntity auxEntity = modelMapper.map(shift,EmployeeShiftEntity.class);
         auxEntity.setShiftId(null);
-        auxEntity.setShiftAudUser(1L);
+        auxEntity.setShiftAudUser(userId);
         auxEntity.setShiftState(1L);
         shiftRepository.save(auxEntity);
         return modelMapper.map(auxEntity,EmployeeShift.class);
     }
 
     @Override
-    public EmployeeShift updateShift(EmployeeShift shift) {
+    public EmployeeShift updateShift(EmployeeShift shift, Long userId) {
         Optional<EmployeeShiftEntity> entity = shiftRepository.findById(shift.getShiftId());
         if (entity.isPresent()){
             EmployeeShiftEntity shiftEntity = modelMapper.map(shift, EmployeeShiftEntity.class);
             shiftEntity.setShiftDay(shift.getShiftDay());
             shiftEntity.setEmployeeId(shift.getEmployeeId());
+            shiftEntity.setShiftAudUser(userId);
             return modelMapper.map(shiftRepository.save(shiftEntity), EmployeeShift.class);
         }
         return null;
     }
 
     @Override
-    public boolean deleteShift(Long shiftId) {
+    public boolean deleteShift(Long shiftId, Long userId) {
         boolean auxReturn = false;
         Optional<EmployeeShiftEntity> entity = shiftRepository.findById(shiftId);
         if (entity.isPresent()){
             entity.get().setShiftState(0L);
+            entity.get().setShiftAudUser(userId);
             shiftRepository.save(entity.get());
             auxReturn = true;
         }
@@ -66,11 +68,12 @@ public class EmployeeShiftServiceImpl implements EmployeeShiftService {
     }
 
     @Override
-    public boolean deleteShiftsByEmployee(Long employeeId) {
+    public boolean deleteShiftsByEmployee(Long employeeId, Long userId) {
         boolean auxReturn = false;
         List<EmployeeShiftEntity> entity = shiftRepository.findAllByEmployeeId(employeeId);
         for (EmployeeShiftEntity s : entity) {
             s.setShiftState(0L);
+            s.setShiftAudUser(userId);
             shiftRepository.save(s);
             auxReturn = true;
         }
