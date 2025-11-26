@@ -44,6 +44,9 @@ public class TimeJustificationServiceImpl implements TimeJustificationService {
     private EmployeeTimeService timeService;
 
     @Autowired
+    private EmailServiceImpl emailService;
+
+    @Autowired
     private MinioServiceImpl minioService; // Changed to MinioServiceImpl to access new methods
 
     @Override
@@ -64,6 +67,9 @@ public class TimeJustificationServiceImpl implements TimeJustificationService {
         entity = timeJustificationRepository.save(entity);
         time.setTimeState(2L);
         timeService.updateEmployeeTime(time);
+        Employee manager = employeeService.getEmployeeManagerByEmployee(time.getEmployeeId());
+        employeeService.getEmployee(time.getEmployeeId());
+        emailService.notifyManagerAboutJustification(manager.getEmployeeId(),time.getEmployeeId(), justification);
         return modelMapper.map(entity, TimeJustification.class);
     }
 
@@ -116,7 +122,13 @@ public class TimeJustificationServiceImpl implements TimeJustificationService {
     @Override
     public Page<EmployeeJustificationDto> getJustificationsPaged(int page, int size, Long employeeId) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<TimeJustificationEntity> paged = timeJustificationRepository.findByEmployeeId(employeeId, pageable);
+        Page<TimeJustificationEntity> paged;
+        if (employeeId!=null){
+            paged = timeJustificationRepository.findByEmployeeId(employeeId, pageable);
+        }
+        else {
+            paged = timeJustificationRepository.findAll(pageable);
+        }
         List<EmployeeJustificationDto> justificationDtoList = new ArrayList<>();
         for (TimeJustificationEntity e : paged.getContent()) {
             justificationDtoList.add(new EmployeeJustificationDto(e.getJustificationId(),

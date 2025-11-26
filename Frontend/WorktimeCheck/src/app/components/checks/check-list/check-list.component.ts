@@ -3,7 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CheckService, Check } from '../../../services/Check/check.service';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ToastrService } from 'ngx-toastr';
+import { toast } from 'ngx-sonner';
 
 // Interface for the paginated response
 interface CheckPageResponse {
@@ -34,7 +34,6 @@ export class CheckListComponent implements OnInit {
   page: number = 0;
 
   checkService: CheckService = inject(CheckService);
-  private toastService: ToastrService = inject(ToastrService);
 
   ngOnInit(): void {
     // Get employee ID from route parameters
@@ -55,7 +54,7 @@ export class CheckListComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Error fetching checks:', err);
-        this.toastService.error('Error al cargar las verificaciones', 'Error');
+        toast.error('Error al cargar las verificaciones');
       }
     });
   }

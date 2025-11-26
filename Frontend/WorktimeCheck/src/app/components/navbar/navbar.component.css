@@ -29,15 +29,16 @@ ul {
 
 .sidebar--options--option {
   background-color: lightgray;
-  border-radius: 10rem;
+  border-radius: 3rem;
   margin-top: 2rem;
   padding: 0.5rem 1rem;
-  width: 5.8rem;
-  height: 3rem;
+  width: 6rem;
+  height: 3.5rem;
   display: flex;
   flex-direction: column; /* CHANGED from column */
   align-items: center;
   justify-content: center;
+  text-align: center;
   gap: 0.5rem; /* space between icon and text */
 }
 
@@ -77,4 +78,9 @@ ul {
   flex-direction: column;
   flex: 1;
   background-color: white;
+}
+
+.navbar--option--image{
+  max-width: 40px;
+  max-height: 40px;
 }

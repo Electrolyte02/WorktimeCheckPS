@@ -9,8 +9,8 @@ import { JustificationService } from '../../../services/Justification/justificat
 import { TimeService } from '../../../services/Time/time.service';
 import { DatePipe, NgIf } from '@angular/common';
 import { EmployeeTime } from '../../../models/employeeTime';
-import { ToastrService } from 'ngx-toastr';
 import { Router, ActivatedRoute } from '@angular/router';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-justification-form',
@@ -27,11 +27,13 @@ export class JustificationFormComponent implements OnInit {
   private fb: FormBuilder = inject(FormBuilder);
   private justificationService: JustificationService = inject(JustificationService);
   private timeService: TimeService = inject(TimeService);
-  private toastService: ToastrService = inject(ToastrService);
   private router: Router = inject(Router);
   private route: ActivatedRoute = inject(ActivatedRoute);
+  userRole:string | null = "";
 
   ngOnInit(): void {
+    this.userRole = localStorage.getItem('role');
+
     this.justificationForm = this.fb.group({
       justificationObservation: ['', Validators.required],
     });
@@ -52,7 +54,7 @@ export class JustificationFormComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Error loading employee time:', err);
-        this.toastService.error('Error al cargar los datos del tiempo');
+        toast.error('Error al cargar los datos del tiempo');
       }
     });
   }
@@ -61,20 +63,20 @@ export class JustificationFormComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       this.selectedFile = file;
-      this.toastService.info('Archivo seleccionado:'+ file.name+ ' Tipo:'+ file.type+ ' Tamaño:'+ file.size);
+      toast.info('Archivo seleccionado:'+ file.name+ ' Tipo:'+ file.type+ ' Tamaño:'+ file.size);
     }
   }
 
   submitJustification(): void {
     if (!this.justificationForm.valid) {
       console.error('Formulario no válido');
-      this.toastService.error('Por favor completa todos los campos requeridos');
+      toast.error('Por favor completa todos los campos requeridos');
       return;
     }
 
     if (!this.selectedFile) {
       console.error('No se ha seleccionado archivo');
-      this.toastService.error('Por favor selecciona un archivo');
+      toast.error('Por favor selecciona un archivo');
       return;
     }
 
@@ -108,13 +110,14 @@ export class JustificationFormComponent implements OnInit {
     this.justificationService.sendJustification(formData).subscribe({
       next: (res: any) => {
         console.log('Respuesta del servidor:', res);
-        this.toastService.success('Justificación enviada correctamente');
+        toast.success('Justificación enviada correctamente');
         this.resetForm();
+        this.router.navigate(['timeList/my']);
       },
       error: (err: any) => {
         console.error('Error completo:', err);
         const errorMessage = err.error?.message || err.message || 'Error desconocido';
-        this.toastService.error('Error al enviar justificación: ', errorMessage);
+        toast.error('Error al enviar justificación: ', errorMessage);
       },
     });
   }
@@ -122,14 +125,14 @@ export class JustificationFormComponent implements OnInit {
   private resetForm(): void {
     this.justificationForm.reset();
     this.selectedFile = null;
-    // Reset file input
     const fileInput = document.getElementById('file') as HTMLInputElement;
     if (fileInput) {
       fileInput.value = '';
     }
+    this.cancel();
   }
 
   cancel(): void {
-    this.router.navigate(['timeList']);
+      this.router.navigate(['timeList/my'])    
   }
 }

@@ -1,6 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { EmployeeJustificationDto } from '../Justification/justification.service';
+import { EmployeeTime } from '../../models/employeeTime';
 
 export interface KPIs {
   indicatorsMap: { [key: string]: number };
@@ -27,6 +29,16 @@ export class DashboardService {
   private apiUrl = 'http://localhost:8080/dashboard'; 
   private http: HttpClient = inject(HttpClient);
 
+    /** 🔐 Devuelve headers con el token de JWT */
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+      'X-User-Id': userId ?? '', // custom header
+    });
+  }
+  
   getKpis(from: string, to: string): Observable<KPIs> {
     const params = new HttpParams()
       .set('from', from)
@@ -52,6 +64,21 @@ export class DashboardService {
     const params = new HttpParams()
       .set('from', from)
       .set('to', to);
-    return this.http.get<ReportingData>(`${this.apiUrl}/reports`, { params });
+    return this.http.get<ReportingData>(`${this.apiUrl}/reports`, {
+      headers:this.getAuthHeaders(),
+      params 
+    });
+  }
+
+  getTopFiveJustificationsToAudit(): Observable<EmployeeJustificationDto[]> {
+    return this.http.get<EmployeeJustificationDto[]>(`${this.apiUrl}/reports/area`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  getTopFiveTimesToJustify(): Observable<EmployeeTime[]> {
+    return this.http.get<EmployeeTime[]>(`${this.apiUrl}/reports/employee`, {
+      headers: this.getAuthHeaders()
+    });
   }
 }

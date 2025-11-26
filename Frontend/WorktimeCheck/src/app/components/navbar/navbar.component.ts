@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { RouterOutlet,RouterLink } from '@angular/router';
+import { Component, inject, OnInit } from '@angular/core';
+import { RouterOutlet,RouterLink, Router } from '@angular/router';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-navbar',
@@ -9,9 +10,22 @@ import { RouterOutlet,RouterLink } from '@angular/router';
 })
 export class NavbarComponent implements OnInit{
   userRole:string | null = "";
+  router: Router = inject(Router);
   
   ngOnInit(): void {
     this.userRole = localStorage.getItem('role');
   }
   
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('role');
+    
+    toast.success('Sesión cerrada exitosamente');
+    this.router.navigate(['/login']);
+  }
+
+  showFaq() {
+    this.router.navigate(['/faq']);
+  }
 }

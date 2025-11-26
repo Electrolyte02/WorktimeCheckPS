@@ -59,5 +59,7 @@ export class UserService {
     });
   }
 
-  
+  updateInfo(user: UserDto): Observable<any> {
+    return this.http.post(this.apiUrl + 'reset', user);
+  }
 }

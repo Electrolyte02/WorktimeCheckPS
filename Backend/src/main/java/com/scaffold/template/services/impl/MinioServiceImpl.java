@@ -26,7 +26,7 @@ public class MinioServiceImpl implements MinioService {
 
     // Allowed file extensions for security
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of(
-            ".pdf", ".doc", ".docx", ".txt", ".jpg", ".jpeg", ".png", ".gif", ".bmp"
+            ".pdf", ".doc", ".docx", ".txt", ".jpg", ".jpeg", ".png"
     );
 
     @Autowired

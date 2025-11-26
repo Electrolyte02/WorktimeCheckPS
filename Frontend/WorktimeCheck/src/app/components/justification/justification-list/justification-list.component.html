@@ -4,18 +4,26 @@
   </div>
   <div class="list--body">
     <div class="list--filters">
-      <input
-        type="number"
-        placeholder="Filtrar por ID de empleado"
-        [(ngModel)]="employeeIdFilter"
-        (input)="filterByEmployee()"
-      />
-      <button (click)="clearFilter()" *ngIf="employeeIdFilter">
-        Limpiar filtro
-      </button>
+      <div class="list--filters">
+      <label for="responsible">Empleado:</label>
+          <select 
+            id="responsible" 
+            [(ngModel)]="employeeId" 
+            (change)="fetchJustifications()"
+            name="areaResponsible"
+            required
+            class="form-control">
+            <option value={{null}}>Seleccione un empleado</option>
+            @for (employee of employees; track employee.employeeId) {
+              <option [value]="employee.employeeId">
+                {{ employee.employeeName }} {{ employee.employeeLastName }}
+              </option>
+            }
+          </select>
+      </div>
     </div>
     <div class="list--actions">
-      <button>
+      <button (click)="exportToExcel()">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -75,10 +83,10 @@
               
               <!-- Show check button only for approved (2) or rejected (3) states -->
               <button 
-                *ngIf="hasCheckAvailable(justification.justificationState)"
+                *ngIf="!hasCheckAvailable(justification.justificationState)"
                 class="check--button" 
-                (click)="viewJustificationCheck(justification.justificationId)"
-                title="Ver revisión"
+                (click)="redirectJustify(justification.justificationId)"
+                title="Justificar"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

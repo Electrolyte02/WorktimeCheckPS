@@ -1,0 +1,81 @@
+@if (userRole=='ADMIN') {
+    <div class="faq--container">
+        <div class="faq--header">
+            <h2>Preguntas Frecuentes</h2>
+        </div>
+        <ul class="faq--list">
+            <li class="faq--item">
+                 <h4>¿Puedo ver las estadísticas de asistencia de toda la empresa?</h4>
+                 <p>Respuesta: Sí, en el módulo de reportes podés acceder a gráficos y KPIs generales que incluyen información de toda la organización.</p>
+            </li>
+            <li class="faq--item">
+                <h4>¿Puedo cambiar los estados de una justificación aprobada o rechazada?</h4>
+                <p>Respuesta: No, una vez establecido, el estado de una justificación no puede cambiarse. 
+                    Ante cualquier necesidad contactar con el Desarrollador de la aplicación.</p>
+            </li>
+            <li class="faq--item">
+                <h4>¿Cómo puedo otorgar el rol de "Gerente" a un usuario?</h4>
+                <p>Respuesta: Desde el módulo de "Areas" se puede seleccionar un responsable de área, 
+                    dicho usuario será considerado "Gerente del área" y tendrá acceso diferenciado a la plataforma.</p>
+            </li>
+        </ul>
+    </div>
+}
+@else if (userRole == 'MANAGER'){
+    <div class="faq--container">
+        <div class="faq--header">
+            <h2>Preguntas Frecuentes</h2>
+        </div>
+        <ul class="faq--list">
+            <li class="faq--item">
+                <h4>¿Dónde reviso las justificaciones de mi equipo?</h4>
+                <p>Respuesta: En la barra de navegación, accedé a "Justificaciones del Area". 
+                    Allí verás todas las solicitudes ordenadas por fecha y estado.</p>
+            </li>
+            <li class="faq--item">
+                <h4>¿Qué pasa si no apruebo o rechazo una justificación a tiempo?</h4>
+                <p>Respuesta: Las solicitudes permanecen pendientes hasta ser revisadas.
+                    Es recomendable gestionarlas lo antes posible para mantener los registros actualizados.</p>
+            </li>
+            <li class="faq--item">
+                <h4>¿Cómo puedo saber cuándo un empleado cargue una justificación?</h4>
+                <p>Respuesta: Cuando un empleado carga una justificación,
+                    recibirás una notificación al correo electrónico con el que te registraste en la plataforma.</p>
+            </li>
+            <li class="faq--item">
+                <h4>¿Puedo dejar comentarios al aprobar o rechazar una justificación?</h4>
+                <p>Respuesta: Es esencial agregar una observación cuando realices la acción.
+                    La resolución será visible para el empleado, quien será notificado al momento de aprobarse o rechazarse su solicitud.</p>
+            </li>        
+        </ul>
+    </div>
+}
+@else {
+    <div class="faq--container">
+        <div class="faq--header">
+            <h2>Preguntas Frecuentes</h2>
+        </div>
+        <ul class="faq--list">
+            <li class="faq--item">
+                <h4>¿Cómo justifico una llegada tarde o una salida anticipada?</h4>
+                <p>Respuesta: Ingresá a la opción de "Mis Horarios", seleccioná el día en cuestión y hacé clic en "Justificar".
+                    Luego completá el formulario indicando el motivo, de ser necesario adjuntá un archivo.</p>
+            </li>
+            <li class="faq--item">
+                <h4>¿Qué tipo de archivos puedo subir como justificativo?</h4>
+                <p>Respuesta:  Podés adjuntar archivos en formato PDF, DOC, JPG o PNG, con un tamaño máximo de 5MB.</p>
+            </li>
+            <li class="faq--item">
+                <h4>¿Cómo sé si mi justificación fue aprobada o rechazada?</h4>
+                <p>Respuesta: Vas a recibir una notificación al correo electrónico con el que te registraste en la plataforma, recordá revisar la bandeja de spam o correo no deseado.
+                    También podés revisar el estado directamente en la sección "Mis Justificaciones" además del motivo de la resolución de este.
+                </p>
+            </li>
+            <li class="faq--item">
+                <h4>¿Puedo editar o eliminar una justificación enviada?</h4>
+                <p>Respuesta: No, una vez enviado el formulario la información no puede ser editada.
+                    En caso de cometer algún error, contactar al Administrador del sistema.</p>
+            </li>
+        </ul>
+    </div>
+}

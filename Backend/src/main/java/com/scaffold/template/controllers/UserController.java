@@ -8,6 +8,7 @@ import com.scaffold.template.entities.UserEntity;
 import com.scaffold.template.models.User;
 import com.scaffold.template.services.UserService;
 import com.scaffold.template.services.impl.JwtService;
+import okhttp3.Response;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -75,4 +76,17 @@ public class UserController {
       return ResponseEntity.ok(users);
     }
 
+    @PostMapping("/reset")
+    public ResponseEntity<Boolean> resetPassword(
+            @RequestBody UserDto userDto,
+            @RequestHeader("X-User-Id") Long userId
+    ) {
+        try {
+            userService.changePassword(userDto);
+            return ResponseEntity.ok(true);
+        }
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }

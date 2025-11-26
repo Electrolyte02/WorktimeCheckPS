@@ -26,7 +26,7 @@ public class EmployeeTimeController {
             @RequestHeader("X-User-Id") Long userId,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam(required = true) Long employeeId
+            @RequestParam(required = false) Long employeeId
     ) {
         Page<EmployeeTime> times = timeService.getEmployeeTimesByEmployee(page,size,employeeId, userId);
         return ResponseEntity.ok(times);

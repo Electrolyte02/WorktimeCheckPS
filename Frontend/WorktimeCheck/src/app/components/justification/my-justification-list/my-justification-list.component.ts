@@ -1,18 +1,23 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { EmployeeJustificationDto, JustificationService } from '../../../services/Justification/justification.service';
+import {
+  EmployeeJustificationDto,
+  JustificationService,
+} from '../../../services/Justification/justification.service';
 import { Router } from '@angular/router';
 import { Check } from '../../../models/check';
 import { CheckService } from '../../../services/Check/check.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import * as XLSX from 'xlsx';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-my-justification-list',
   imports: [CommonModule, FormsModule],
   templateUrl: './my-justification-list.component.html',
-  styleUrl: './my-justification-list.component.css'
+  styleUrl: './my-justification-list.component.css',
 })
-export class MyJustificationListComponent implements OnInit{
+export class MyJustificationListComponent implements OnInit {
   justificationList: EmployeeJustificationDto[] = [];
   totalPages: number = 0;
   totalPagesArray: number[] = [];
@@ -34,14 +39,21 @@ export class MyJustificationListComponent implements OnInit{
   }
 
   fetchJustifications() {
-    this.justificationService.getJustificationsPagedByUser(
-      this.page, 
-      this.size, 
-    ).subscribe((response: { content: EmployeeJustificationDto[]; totalPages: number; }) => {
-      this.justificationList = response.content;
-      this.totalPages = response.totalPages;
-      this.totalPagesArray = Array.from({ length: this.totalPages }, (_, i) => i);
-    });
+    this.justificationService
+      .getJustificationsPagedByUser(this.page, this.size)
+      .subscribe(
+        (response: {
+          content: EmployeeJustificationDto[];
+          totalPages: number;
+        }) => {
+          this.justificationList = response.content;
+          this.totalPages = response.totalPages;
+          this.totalPagesArray = Array.from(
+            { length: this.totalPages },
+            (_, i) => i
+          );
+        }
+      );
   }
 
   goToPage(pageNumber: number) {
@@ -83,7 +95,7 @@ export class MyJustificationListComponent implements OnInit{
       error: (error: any) => {
         console.error('Error loading check details:', error);
         this.isLoadingCheck = false;
-      }
+      },
     });
   }
 
@@ -102,30 +114,43 @@ export class MyJustificationListComponent implements OnInit{
   }
 
   getStateText(state: number): string {
-    switch(state) {
-      case 0: return 'Anulada';
-      case 1: return 'Pendiente';
-      case 2: return 'Aprobada';
-      case 3: return 'Rechazada'
-      default: return 'Desconocido';
+    switch (state) {
+      case 0:
+        return 'Anulada';
+      case 1:
+        return 'Pendiente';
+      case 2:
+        return 'Aprobada';
+      case 3:
+        return 'Rechazada';
+      default:
+        return 'Desconocido';
     }
   }
 
   getStateClass(state: number): string {
-    switch(state) {
-      case 0: return 'state-deleted';
-      case 1: return 'state-pending';
-      case 2: return 'state-approved';
-      case 3: return 'state-rejected';
-      default: return 'state-unknown';
+    switch (state) {
+      case 0:
+        return 'state-deleted';
+      case 1:
+        return 'state-pending';
+      case 2:
+        return 'state-approved';
+      case 3:
+        return 'state-rejected';
+      default:
+        return 'state-unknown';
     }
   }
 
   getCheckStateText(state: number): string {
-    switch(state) {
-      case 0: return 'Inactivo';
-      case 1: return 'Activo';
-      default: return 'Desconocido';
+    switch (state) {
+      case 0:
+        return 'Inactivo';
+      case 1:
+        return 'Activo';
+      default:
+        return 'Desconocido';
     }
   }
 
@@ -136,7 +161,7 @@ export class MyJustificationListComponent implements OnInit{
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   }
 
@@ -145,5 +170,63 @@ export class MyJustificationListComponent implements OnInit{
    */
   hasCheckAvailable(state: number): boolean {
     return state === 2 || state === 3;
+  }
+
+  exportToExcel() {
+    this.exportCurrentPage();
+  }
+
+  private exportCurrentPage() {
+    if (this.justificationList.length === 0) {
+      toast.error('No hay justificaciones para exportar');
+      return;
+    }
+
+    const exportData = this.prepareExportData(this.justificationList);
+    this.generateExcelFile(exportData, 'justificaciones_pagina_actual');
+  }
+
+  private prepareExportData(justifications: EmployeeJustificationDto[]) {
+    return justifications.map((just) => ({
+      Empleado: just.employeeFullName,
+      Estado: this.getStateText(just.justificationState),
+      Fecha: this.formatDate(just.justificationDate),
+      'ID Justificación': just.justificationId
+    }));
+  }
+
+  private generateExcelFile(data: any[], filename: string) {
+    try {
+      // Create workbook and worksheet
+      const wb: XLSX.WorkBook = XLSX.utils.book_new();
+      const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+
+      // Set column widths for better formatting
+      const wscols = [
+        { width: 25 }, // Empleado
+        { width: 12 }, // Estado
+        { width: 18 }, // Fecha
+        { width: 15 }, // ID Justificación
+      ];
+      ws['!cols'] = wscols;
+
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Justificaciones');
+
+      // Generate filename with timestamp
+      const timestamp = new Date()
+        .toISOString()
+        .slice(0, 19)
+        .replace(/:/g, '-');
+      const fullFilename = `${filename}_${timestamp}.xlsx`;
+
+      // Save file
+      XLSX.writeFile(wb, fullFilename);
+
+      toast.success(`Excel exportado exitosamente: ${fullFilename}`);
+    } catch (error) {
+      console.error('Error generating Excel file:', error);
+      toast.error('Error al generar el archivo Excel');
+    }
   }
 }

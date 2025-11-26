@@ -3,8 +3,8 @@ import { Router } from '@angular/router';
 import { UserService } from '../../../services/User/user.service';
 import { AuthDto } from '../../../models/authDto';
 import { FormsModule } from '@angular/forms';
-import { ToastrService } from 'ngx-toastr';
 import { AuthorizedDto } from '../../../models/authorizedDto';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +16,6 @@ import { AuthorizedDto } from '../../../models/authorizedDto';
 export class LoginComponent {
   private router = inject(Router);
   private userService = inject(UserService);
-  private toastService:ToastrService = inject(ToastrService);
 
   auth: AuthDto = {
     userName: '',
@@ -29,11 +28,11 @@ export class LoginComponent {
         localStorage.setItem('token', authorized.token);
         localStorage.setItem('userId', authorized.userId.toString());
         localStorage.setItem('role', authorized.role)
-        this.toastService.success('Login exitoso');
-        this.router.navigate(['/employeeList']); // ✅ redirige al listado de empleados
+        toast.success('Login exitoso');
+        this.router.navigate(['/timeList/my']);
       },
       error: (err) => {
-        this.toastService.error('Error de autenticación: ' + err.error);
+        toast.error('Error de autenticación: ' + err.error);
         console.error(err);
       }
     });

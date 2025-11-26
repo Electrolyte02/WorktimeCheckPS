@@ -106,14 +106,14 @@ export class JustificationService {
     getJustificationsPaged(
     page: number = 0, 
     size: number = 10, 
-    employeeId?: number
+    employeeId: number | null
   ): Observable<PaginatedResponse<EmployeeJustificationDto>> {
     let params: any = {
       page: page.toString(),
       size: size.toString()
     };
 
-    if (employeeId !== undefined && employeeId !== null) {
+    if (employeeId) {
       params.employeeId = employeeId.toString();
     }
     

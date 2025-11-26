@@ -3,6 +3,7 @@ package com.scaffold.template.controllers;
 import com.scaffold.template.dtos.EmployeeDto;
 import com.scaffold.template.models.Employee;
 import com.scaffold.template.services.EmployeeService;
+import com.scaffold.template.services.impl.EmailServiceImpl;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,6 +19,9 @@ import java.util.List;
 public class EmployeeController {
     @Autowired
     private EmployeeService employeeService;
+
+    @Autowired
+    private EmailServiceImpl emailService;
 
     @Autowired
     @Qualifier("modelMapper")
@@ -38,6 +42,7 @@ public class EmployeeController {
     public ResponseEntity<EmployeeDto> createEmployee(@RequestHeader("X-User-Id") Long userId,
             @RequestBody EmployeeDto dto){
         Employee employee = employeeService.createEmployee(dto, userId);
+        emailService.sendRegistrationEmail(employee.getEmployeeId(), "http://localhost:4200/");
         return ResponseEntity.ok(mapper.map(employee,EmployeeDto.class));
     }
 
@@ -77,7 +82,7 @@ public class EmployeeController {
 
     @PutMapping("/{id}/{changeTime}")
     public ResponseEntity<EmployeeDto> updateEmployee(@RequestHeader("X-User-Id") Long userId,
-            @RequestBody EmployeeDto dto, @RequestParam Boolean changeTime){
+            @RequestBody EmployeeDto dto, @PathVariable Boolean changeTime){
         Employee employee = employeeService.updateEmployee(dto, changeTime, userId);
         return ResponseEntity.ok(mapper.map(employee,EmployeeDto.class));
     }

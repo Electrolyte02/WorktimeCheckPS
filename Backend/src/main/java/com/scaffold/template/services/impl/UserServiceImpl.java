@@ -1,9 +1,9 @@
 package com.scaffold.template.services.impl;
 
+import com.scaffold.template.dtos.UserDto;
 import com.scaffold.template.dtos.UserInfoDto;
 import com.scaffold.template.entities.UserEntity;
 import com.scaffold.template.models.Employee;
-import com.scaffold.template.models.User;
 import com.scaffold.template.repositories.UserRepository;
 import com.scaffold.template.services.EmployeeService;
 import com.scaffold.template.services.UserService;
@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -28,6 +29,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EmailServiceImpl emailService;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -50,6 +54,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setUserRole("EMPLOYEE");
         user = userRepository.save(user);
+        emailService.sendRegisteredEmail(user.getEmployeeId());
         return user;
     }
 
@@ -93,14 +98,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserEntity updateUserRole(Long employeeId, String role) {
+    public void updateUserRole(Long employeeId, String role) {
         Optional<UserEntity> user = userRepository.findByEmployeeId(employeeId);
         if (user.isEmpty()){
             throw new IllegalArgumentException("User doesn't exist");
         }
         user.get().setUserRole(role);
         userRepository.save(user.get());
-        return user.get();
+    }
+
+    @Override
+    public void changePassword(UserDto user) {
+        Optional<UserEntity> entity = userRepository.findByUserName(user.getUserName());
+        if (entity.isEmpty()) {
+            throw new IllegalArgumentException("No user found");
+        }
+        entity.get().setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.save(entity.get());
+    }
+
+    @Override
+    public boolean isUserAdmin(Long userId) {
+        Optional<UserEntity> user = userRepository.findById(userId);
+        return user.filter(userEntity -> (Objects.equals(userEntity.getUserRole(), "ADMIN"))).isPresent();
     }
 
 }

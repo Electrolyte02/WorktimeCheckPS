@@ -1,10 +1,10 @@
 <div class="dashboard-container">
   <div class="dashboard-header">
-    <h1>Employee Time Dashboard</h1>
+    <h1>Bienvenido a la plataforma Worktime Check</h1>
     
     <!-- Date Range Selector -->
     <div class="date-range-selector">
-      <label for="fromDate">From:</label>
+      <label for="fromDate">Desde:</label>
       <input 
         type="datetime-local" 
         id="fromDate" 
@@ -12,7 +12,7 @@
         (change)="onDateRangeChange()"
         class="date-input">
       
-      <label for="toDate">To:</label>
+      <label for="toDate">Hasta:</label>
       <input 
         type="datetime-local" 
         id="toDate" 
@@ -23,14 +23,14 @@
   </div>
 
   <div *ngIf="loading" class="loading">
-    Loading dashboard data...
+    Cargando datos...
   </div>
 
   <div *ngIf="!loading" class="dashboard-content">
     
     <!-- KPIs Section -->
     <div class="kpis-section">
-      <h2>Key Performance Indicators</h2>
+      <h2></h2>
       <div class="kpis-grid">
         <div class="kpi-card" *ngFor="let kpi of kpis | keyvalue">
           <div class="kpi-title">{{ kpi.key }}</div>
@@ -41,41 +41,120 @@
 
     <!-- Charts Section -->
     <div class="charts-section">
-      
-      <!-- Pie Chart -->
-      <div class="chart-container">
-        <h3>Justifications Status</h3>
-        <ngx-charts-pie-chart
-          [view]="view"
-          [results]="pieChartData"
-          [gradient]="gradient"
-          [legend]="showLegend"
-          [labels]="showLabels"
-          [doughnut]="isDoughnut"
-          (select)="onSelect($event)"
-          (activate)="onActivate($event)"
-          (deactivate)="onDeactivate($event)">
+      <div class="charts-row">
+        <!-- Pie Chart -->
+        <div class="chart-container">
+          <h3>Justificaciones por Estado</h3>
+          <ngx-charts-pie-chart
+            [view]="view"
+            [results]="pieChartData"
+            [gradient]="gradient"
+            [labels]="true"
+            [doughnut]="isDoughnut"
+            [tooltipDisabled]="false"
+            [legend]="true"
+            [legendTitle]="legendTitle"
+            [explodeSlices]="false"
+            (select)="onSelect($event)"
+            (activate)="onActivate($event)"
+            (deactivate)="onDeactivate($event)">
         </ngx-charts-pie-chart>
-      </div>
+        </div>
 
-      <!-- Line Chart -->
-      <div class="chart-container">
-        <h3>Not On Time by Area</h3>
-        <ngx-charts-bar-vertical
-          [view]="view"
-          [results]="lineChartData[0]?.series || []"
-          [gradient]="gradient"
-          [xAxis]="showXAxis"
-          [yAxis]="showYAxis"
-          [legend]="showLegend"
-          [showXAxisLabel]="showXAxisLabel"
-          [showYAxisLabel]="showYAxisLabel"
-          [xAxisLabel]="xAxisLabel"
-          [yAxisLabel]="yAxisLabel"
-          (select)="onSelect($event)"
-          (activate)="onActivate($event)"
-          (deactivate)="onDeactivate($event)">
-        </ngx-charts-bar-vertical>
+        @if (userRole == 'ADMIN') {
+          <!-- Line Chart -->
+          <div class="chart-container">
+            <h3>Entradas/Salidas fuera de Horario por Area</h3>
+            <ngx-charts-bar-vertical
+              [view]="view"
+              [results]="lineChartData[0]?.series || []"
+              [gradient]="gradient"
+              [xAxis]="showXAxis"
+              [yAxis]="showYAxis"
+              [showXAxisLabel]="showXAxisLabel"
+              [showYAxisLabel]="showYAxisLabel"
+              [xAxisLabel]="xAxisLabel"
+              [tooltipDisabled]="false"
+              [yAxisLabel]="yAxisLabel"
+              (select)="onSelect($event)"
+              (activate)="onActivate($event)"
+              (deactivate)="onDeactivate($event)">
+            </ngx-charts-bar-vertical>
+          </div>
+        }
+        @else if (userRole == 'MANAGER') {
+          <!-- Top 5 Justifications to Review -->
+          <div class="chart-container">
+            <h3>Top 5 Justificaciones por Revisar</h3>
+            
+            <div *ngIf="loadingJustifications" class="loading-justifications">
+              Cargando justificaciones...
+            </div>
+
+            <div *ngIf="!loadingJustifications && topJustifications.length === 0" class="no-justifications">
+              No hay justificaciones pendientes por revisar.
+            </div>
+
+            <div *ngIf="!loadingJustifications && topJustifications.length > 0" class="justifications-list">
+              <div class="justification-item" *ngFor="let justification of topJustifications; let i = index">
+                <div class="justification-header">
+                  <span class="justification-number">#{{i + 1}}</span>
+                  <span class="employee-name">{{ justification.employeeFullName }}</span>
+                  <span class="justification-state" [class]="getJustificationStateClass(justification.justificationState)">
+                    {{ getJustificationStateText(justification.justificationState) }}
+                  </span>
+                </div>
+                
+                <div class="justification-details">
+                  <span class="justification-date">{{ formatDate(justification.justificationDate) }}</span>
+                  <button 
+                    class="review-button" 
+                    (click)="reviewJustification(justification.justificationId)"
+                    title="Revisar justificación">
+                    Revisar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+        @else{
+          <!-- Top 5 Times to Justify for Employees -->
+          <div class="chart-container">
+            <h3>Top 5 Tiempos por Justificar</h3>
+            
+            <div *ngIf="loadingTimesToJustify" class="loading-times">
+              Cargando tiempos por justificar...
+            </div>
+
+            <div *ngIf="!loadingTimesToJustify && topTimesToJustify.length === 0" class="no-times">
+              No hay tiempos pendientes por justificar.
+            </div>
+
+            <div *ngIf="!loadingTimesToJustify && topTimesToJustify.length > 0" class="times-list">
+              <div class="time-item" *ngFor="let time of topTimesToJustify; let i = index">
+                <div class="time-header">
+                  <span class="time-number">#{{i + 1}}</span>
+                  <span class="time-type">{{ getTimeTypeText(time.timeType) }}</span>
+                  <span class="time-punctual" [class]="time.timeOnTime ? 'on-time' : 'not-on-time'">
+                    {{ time.timeOnTime ? 'A Tiempo' : 'Fuera de Tiempo' }}
+                  </span>
+                </div>
+                
+                <div class="time-details">
+                  <span class="time-date">{{ formatDate(time.timeDay.toString()) }}</span>
+                  <button 
+                    class="justify-button" 
+                    (click)="justifyTime(time.timeId)"
+                    [disabled]="time.timeState !== 0"
+                    title="Justificar tiempo">
+                    {{ time.timeState === 0 ? 'Justificar' : 'Ya Justificado' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
       </div>
     </div>
   </div>

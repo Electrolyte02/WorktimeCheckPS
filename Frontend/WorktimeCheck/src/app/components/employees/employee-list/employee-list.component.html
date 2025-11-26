@@ -8,7 +8,7 @@
         type="text"
         placeholder="Buscar por nombre"
         [(ngModel)]="nameFilter"
-        (input)="fetchEmployees()"
+        (ngModelChange)="onNameFilterChange($event)"
       />
     </div>
     <div class="list--actions">
@@ -18,7 +18,7 @@
       >
         +
       </button>
-      <button>
+      <button (click)="exportToExcel()" title="Exportar a Excel">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -54,11 +54,12 @@
           <td>{{ e.employeeDocument }}</td>
           <td>{{ e.employeeEmail }}</td>
           <td>{{ e.employeeArea.description }}</td>
-          @if (e.employeeState==0) {
-            <td><img src="assets/slash-circle.svg" alt="Deshabilitado" style="font-palette: red;"></td>
-          } @else if (e.employeeState==1) {
-          <td><img src="assets/check2.svg" alt="Habilitado"></td>
-          }
+          <td>
+            <span [class]="getStateClass(e.employeeState)">{{
+              getCheckStateText(e.employeeState)
+            }}</span>
+          </td>
+          @if(e.employeeState != 0) {
           <td>
             <button class="edit--button" (click)="editEmployee(e.employeeId)">
               <svg
@@ -96,9 +97,9 @@
               </svg>
             </button>
           </td>
+          }
         </tr>
-        }
-        @empty {
+        } @empty {
         <tr>
           <td colspan="5" class="text-center">No se encontraron empleados</td>
         </tr>

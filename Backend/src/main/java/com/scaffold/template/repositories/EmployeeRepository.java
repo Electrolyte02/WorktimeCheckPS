@@ -26,6 +26,13 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity,Long> {
 """)
     Page<EmployeeEntity> searchByAreaId(@Param("areaId") Long areaId,@Param("search") String search, Pageable pageable);
 
+    @Query("""
+    SELECT e FROM EmployeeEntity e\s
+    WHERE e.employeeArea.id = :areaId\s
+""")
+    Page<EmployeeEntity> findByAreaId(@Param("areaId") Long areaId, Pageable pageable);
+
+
     Optional<EmployeeEntity> findByEmail(String email);
 
     boolean existsByEmail(String email);

@@ -124,3 +124,46 @@
     transition: background-color 0.2s;
   }
   
+  /* Estilos para inputs con errores */
+input.error {
+  border: 2px solid #ef4444;
+  background-color: #fef2f2;
+}
+
+select.error {
+  border: 2px solid #ef4444;
+  background-color: #fef2f2;
+}
+
+/* Estilos para mensajes de error */
+.error-message {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.error-message span {
+  display: block;
+}
+
+/* Opcional: Estilos para inputs válidos */
+input.ng-valid.ng-touched {
+  border: 2px solid #22c55e;
+}
+
+select.ng-valid.ng-touched {
+  border: 2px solid #22c55e;
+}
+
+/* Estilos para botón deshabilitado */
+button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+button:disabled:hover {
+  background-color: #9ca3af;
+}

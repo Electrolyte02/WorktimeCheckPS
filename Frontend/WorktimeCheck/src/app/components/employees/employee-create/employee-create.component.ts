@@ -6,6 +6,8 @@ import {
   Validators,
   FormArray,
   FormsModule,
+  AbstractControl,
+  ValidationErrors,
 } from '@angular/forms';
 import { Area } from '../../../models/area';
 import { CommonModule } from '@angular/common';
@@ -13,7 +15,7 @@ import { EmployeeService } from '../../../services/Employee/employee.service';
 import { Employee } from '../../../models/employee';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AreaService } from '../../../services/Area/area.service';
-import { ToastrService } from 'ngx-toastr';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-employee-create',
@@ -25,10 +27,10 @@ export class EmployeeCreateComponent implements OnInit {
   auxOperation = false;
   employeeIdToUpdate: number | null = null;
   auxTime: boolean = false;
+  formSubmitted = false;
 
   employeeService = inject(EmployeeService);
   areaService = inject(AreaService);
-  private toastService:ToastrService = inject(ToastrService);
   router = inject(Router);
   route = inject(ActivatedRoute);
 
@@ -48,23 +50,69 @@ export class EmployeeCreateComponent implements OnInit {
 
   areas: Area[] = [];
 
+  // Custom validator for CUIL format
+  cuilValidator(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) {
+      return null; // Let required validator handle empty values
+    }
+    
+    const cuilPattern = /^\d{2}-\d{8,9}-\d{1}$/;
+    if (!cuilPattern.test(control.value)) {
+      return { pattern: true };
+    }
+    
+    return null;
+  }
+
+  // Custom validator for time range
+  timeRangeValidator(control: AbstractControl): ValidationErrors | null {
+    const entryTime = control.get('entryTime')?.value;
+    const exitTime = control.get('exitTime')?.value;
+    
+    if (!entryTime || !exitTime) {
+      return null;
+    }
+    
+    const entry = new Date(`1970-01-01T${entryTime}:00`);
+    const exit = new Date(`1970-01-01T${exitTime}:00`);
+    
+    if (exit <= entry) {
+      control.get('exitTime')?.setErrors({ timeRange: true });
+      return { timeRange: true };
+    }
+    
+    // Clear the error if time range is valid
+    const exitTimeControl = control.get('exitTime');
+    if (exitTimeControl?.errors?.['timeRange']) {
+      delete exitTimeControl.errors['timeRange'];
+      if (Object.keys(exitTimeControl.errors).length === 0) {
+        exitTimeControl.setErrors(null);
+      }
+    }
+    
+    return null;
+  }
+
   employeeForm = new FormGroup({
     firstName: new FormControl('', [Validators.required]),
     lastName: new FormControl('', [Validators.required]),
-    document: new FormControl('', [Validators.required]),
+    document: new FormControl('', [Validators.required, this.cuilValidator]),
     email: new FormControl('', [Validators.required, Validators.email]),
     entryTime: new FormControl(''),
     exitTime: new FormControl(''),
-    area: new FormControl(1, Validators.required),
+    area: new FormControl('', Validators.required), // Changed default value to empty string
     distinctSchedules: new FormControl(false),
-    changeSchedules: new FormControl(false), // New control for schedule changes
+    changeSchedules: new FormControl(false),
     daySchedules: new FormArray([]),
   });
 
   ngOnInit(): void {
     this.areaService.getAreas().subscribe(response => {
-      this.areas=response;
+      this.areas = response;
     });
+
+    // Add validators for schedule times
+    this.updateScheduleValidators();
 
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
@@ -77,7 +125,7 @@ export class EmployeeCreateComponent implements OnInit {
             lastName: employee.employeeLastName,
             document: employee.employeeDocument,
             email: employee.employeeEmail,
-            area: employee.employeeArea.id,
+            area: employee.employeeArea.id.toString(),
             entryTime: employee.employeeShifts[0]?.shiftEntry || '',
             exitTime: employee.employeeShifts[0]?.shiftExit || '',
           });
@@ -88,7 +136,7 @@ export class EmployeeCreateComponent implements OnInit {
         },
         error: (err) => {
           console.error(err);
-          this.toastService.error('No se pudo cargar el empleado', err.error);
+          toast.error('No se pudo cargar el empleado', err.error);
         },
       });
     }
@@ -97,7 +145,60 @@ export class EmployeeCreateComponent implements OnInit {
       .get('distinctSchedules')
       ?.valueChanges.subscribe((distinct) => {
         this.onScheduleModeChange();
+        this.updateScheduleValidators();
       });
+
+    // Watch for time changes to validate ranges
+    this.employeeForm.get('entryTime')?.valueChanges.subscribe(() => {
+      this.validateTimeRange();
+    });
+
+    this.employeeForm.get('exitTime')?.valueChanges.subscribe(() => {
+      this.validateTimeRange();
+    });
+  }
+
+  updateScheduleValidators(): void {
+    const isDistinct = this.employeeForm.get('distinctSchedules')?.value;
+    
+    if (!isDistinct) {
+      // For general schedule, make times required
+      this.employeeForm.get('entryTime')?.setValidators([Validators.required]);
+      this.employeeForm.get('exitTime')?.setValidators([Validators.required]);
+    } else {
+      // For distinct schedules, remove validators from general time inputs
+      this.employeeForm.get('entryTime')?.setValidators([]);
+      this.employeeForm.get('exitTime')?.setValidators([]);
+    }
+    
+    this.employeeForm.get('entryTime')?.updateValueAndValidity();
+    this.employeeForm.get('exitTime')?.updateValueAndValidity();
+  }
+
+  validateTimeRange(): void {
+    const entryTime = this.employeeForm.get('entryTime')?.value;
+    const exitTime = this.employeeForm.get('exitTime')?.value;
+    
+    if (entryTime && exitTime) {
+      const entry = new Date(`1970-01-01T${entryTime}:00`);
+      const exit = new Date(`1970-01-01T${exitTime}:00`);
+      
+      const exitTimeControl = this.employeeForm.get('exitTime');
+      if (exit <= entry) {
+        exitTimeControl?.setErrors({ ...exitTimeControl.errors, timeRange: true });
+      } else {
+        if (exitTimeControl?.errors?.['timeRange']) {
+          delete exitTimeControl.errors['timeRange'];
+          if (Object.keys(exitTimeControl.errors).length === 0) {
+            exitTimeControl.setErrors(null);
+          }
+        }
+      }
+    }
+  }
+
+  hasSelectedDays(): boolean {
+    return Object.values(this.daySelection).some(selected => selected);
   }
 
   toggleDay(day: string): void {
@@ -112,6 +213,9 @@ export class EmployeeCreateComponent implements OnInit {
           entryTime: new FormControl('', Validators.required),
           exitTime: new FormControl('', Validators.required),
         });
+
+        // Add time range validator to the group
+        newGroup.setValidators(this.timeRangeValidator);
 
         // Inserta en la posición correcta
         const position = dayOrder
@@ -136,21 +240,41 @@ export class EmployeeCreateComponent implements OnInit {
       const dayOrder = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
       dayOrder.forEach((day) => {
         if (this.daySelection[day]) {
-          this.daySchedules.push(
-            new FormGroup({
-              day: new FormControl(day),
-              entryTime: new FormControl('', Validators.required),
-              exitTime: new FormControl('', Validators.required),
-            })
-          );
+          const newGroup = new FormGroup({
+            day: new FormControl(day),
+            entryTime: new FormControl('', Validators.required),
+            exitTime: new FormControl('', Validators.required),
+          });
+
+          // Add time range validator to the group
+          newGroup.setValidators(this.timeRangeValidator);
+          
+          this.daySchedules.push(newGroup);
         }
       });
     }
+    
+    this.updateScheduleValidators();
   }
 
   saveEmployee() {
+    this.formSubmitted = true;
+    
+    // Check if at least one day is selected
+    if (!this.hasSelectedDays()) {
+      toast.error('Debe seleccionar al menos un día de trabajo');
+      return;
+    }
+
     if (this.employeeForm.invalid) {
       this.employeeForm.markAllAsTouched();
+      
+      // Mark all day schedule controls as touched
+      this.daySchedules.controls.forEach(control => {
+        control.markAllAsTouched();
+      });
+      
+      toast.error('Por favor, corrija los errores en el formulario');
       return;
     }
 
@@ -196,7 +320,7 @@ export class EmployeeCreateComponent implements OnInit {
       employeeLastName: formValues.lastName as string,
       employeeDocument: formValues.document as string,
       employeeEmail: formValues.email as string,
-      employeeArea: this.areas.find((a) => a.id == formValues.area)!,
+      employeeArea: this.areas.find((a) => a.id == formValues.area as unknown as number)!,
       employeeState: 1,
       employeeShifts,
     };
@@ -208,12 +332,17 @@ export class EmployeeCreateComponent implements OnInit {
     } else {
       this.employeeService.createEmployee(employee).subscribe({
         next: () => {
-          this.toastService.success('Empleado creado exitosamente');
+          toast.success('Empleado creado exitosamente');
           this.employeeForm.reset();
+          this.formSubmitted = false;
+          // Reset day selection
+          Object.keys(this.daySelection).forEach(day => {
+            this.daySelection[day] = false;
+          });
+          this.router.navigate(['/employeeList']);
         },
         error: (err) => {
-          console.error(err);
-          this.toastService.error('Error al guardar el empleado', err.error);
+          toast.error('Error al guardar el empleado', err.error);
         },
       });
     }
@@ -222,12 +351,12 @@ export class EmployeeCreateComponent implements OnInit {
   updateEmployee(employee: Employee, changeSchedules: boolean = false) {
     this.employeeService.updateEmployee(employee, changeSchedules).subscribe({
       next: () => {
-        this.toastService.success('Empleado actualizado exitosamente');
+        toast.success('Empleado actualizado exitosamente');
         this.router.navigate(['/employeeList']);
       },
       error: (err) => {
         console.error(err);
-        this.toastService.error('Error al actualizar el empleado', err.error);
+        toast.error('Error al actualizar el empleado', err.error);
       },
     });
   }

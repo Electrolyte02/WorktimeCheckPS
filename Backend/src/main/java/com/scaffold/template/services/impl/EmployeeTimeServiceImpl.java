@@ -56,6 +56,11 @@ public class EmployeeTimeServiceImpl implements EmployeeTimeService {
 
     @Override
     public EmployeeTime updateEmployeeTime(EmployeeTime employeeTime) {
+        Optional<EmployeeTimeEntity> timeEntity = timeRepository.findById(employeeTime.getTimeId());
+        if (timeEntity.isPresent()){
+            timeEntity.get().setTimeState(employeeTime.getTimeState());
+            return modelMapper.map(timeRepository.save(timeEntity.get()),EmployeeTime.class);
+        }
         return null;
     }
 

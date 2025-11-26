@@ -3,7 +3,7 @@
     <div class="row">
       <h2 class="form--title">
         <ng-container *ngIf="employeeTime">
-          Justificación de {{ employeeTime?.timeDay | date: 'dd/MM/yyyy' }} - {{ employeeTime?.timeDay | date: 'HH:mm' }}
+          Justificación de {{ employeeTime.timeDay | date: 'dd/MM/yyyy' }} - {{ employeeTime.timeDay | date: 'HH:mm' }}
         </ng-container>
         <ng-container *ngIf="!employeeTime">
           Justificación

@@ -67,18 +67,6 @@
     border-bottom: 1px solid #ddd;
   }
   
-  .table td button {
-    background-color: transparent;
-    border: none;
-    margin: 0 0.25rem;
-    font-size: 1rem;
-    cursor: pointer;
-  }
-  
-  .table td button:hover {
-    color: red;
-  }
-  
   .list--pagination {
     display: flex;
     justify-content: space-between;
@@ -116,17 +104,6 @@
     cursor: not-allowed;
   }
   
-  .delete--button{
-    background-color: black;
-    color: red;
-    border-radius: 3rem;
-  }
-
-  .edit--button{
-    background-color: black;
-    color: grey;
-    border-radius: 3rem;
-  }
 
   .modal-overlay {
     position: fixed;
@@ -160,3 +137,70 @@
     transition: background-color 0.2s;
     margin: 0 0.5rem;
   }
+
+  
+/* State styling */
+.state-pending {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.state-approved {
+  background-color: #d1edff;
+  color: #0c5460;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.state-rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.state-unknown {
+  background-color: #e2e3e5;
+  color: #383d41;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.view--button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #007bff;
+  color: white;
+  border: 1px solid #007bff;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 85px;
+  justify-content: center;
+}
+
+.view--button:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 123, 255, 0.3);
+}
+
+.view--button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 123, 255, 0.4);
+}

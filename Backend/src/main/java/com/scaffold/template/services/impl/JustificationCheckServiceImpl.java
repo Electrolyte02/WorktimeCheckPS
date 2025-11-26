@@ -3,10 +3,12 @@ package com.scaffold.template.services.impl;
 import com.scaffold.template.entities.JustificationCheckEntity;
 import com.scaffold.template.entities.TimeJustificationEntity;
 import com.scaffold.template.models.Employee;
+import com.scaffold.template.models.EmployeeTime;
 import com.scaffold.template.models.JustificationCheck;
 import com.scaffold.template.models.TimeJustification;
 import com.scaffold.template.repositories.JustificationCheckRepository;
 import com.scaffold.template.services.EmployeeService;
+import com.scaffold.template.services.EmployeeTimeService;
 import com.scaffold.template.services.JustificationCheckService;
 import com.scaffold.template.services.TimeJustificationService;
 import org.apache.commons.lang3.NotImplementedException;
@@ -33,6 +35,12 @@ public class JustificationCheckServiceImpl implements JustificationCheckService 
     @Autowired
     private TimeJustificationService timeJustificationService;
 
+    @Autowired
+    private EmployeeTimeService timeService;
+
+    @Autowired
+    private EmailServiceImpl emailService;
+
     @Override
     public JustificationCheck createCheck(JustificationCheck check, Long userId) {
         TimeJustification justification = timeJustificationService.getTimeJustificationById(check.getJustificationId());
@@ -44,6 +52,10 @@ public class JustificationCheckServiceImpl implements JustificationCheckService 
         JustificationCheckEntity entity = modelMapper.map(check, JustificationCheckEntity.class);
         entity.setCheckAudUser(userId);
         JustificationCheckEntity savedEntity = checkRepository.save(entity);
+
+        EmployeeTime time = timeService.getEmployeeTimeById(justification.getTimeId());
+        Employee manager = employeeService.getEmployeeManagerByEmployee(time.getEmployeeId());
+        emailService.notifyEmployeeAboutJustificationDecision(time.getEmployeeId(), manager.getEmployeeId(), justification, check);
         return modelMapper.map(savedEntity, JustificationCheck.class);
     }
 

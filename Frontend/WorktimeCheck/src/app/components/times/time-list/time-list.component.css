@@ -160,3 +160,93 @@
     transition: background-color 0.2s;
     margin: 0 0.5rem;
   }
+
+    
+.list--container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    background-color: #fdfbff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .list--header h2 {
+    margin: 0 0 1rem;
+    font-size: 1.5rem;
+    color: #333;
+    border-bottom: 2px solid #d3cce3;
+    padding-bottom: 0.5rem;
+  }
+  
+  .list--body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .list--filters {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  
+  .list--actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  
+  .list--actions button {
+    background-color: #6a5acd;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .list--actions button:hover {
+    background-color: #5b50b4;
+  }
+
+  
+/* State styling */
+.state-pending {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.state-approved {
+  background-color: #d1edff;
+  color: #0c5460;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.state-rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.state-unknown {
+  background-color: #e2e3e5;
+  color: #383d41;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}

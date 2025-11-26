@@ -1,0 +1,99 @@
+<div class="list--container">
+  <div class="list--header">
+    <h2>Lista de Notificaciones</h2>
+  </div>
+  <div class="list--body">
+    <div class="list--filters">
+      <div class="date-filters">
+        <div class="date-group">
+          <label for="from-date">Desde:</label>
+          <input 
+            type="datetime-local" 
+            id="from-date" 
+            [(ngModel)]="fromDate" 
+            class="form-control">
+        </div>
+        <div class="date-group">
+          <label for="to-date">Hasta:</label>
+          <input 
+            type="datetime-local" 
+            id="to-date" 
+            [(ngModel)]="toDate" 
+            class="form-control">
+        </div>
+        <button (click)="applyFilters()" class="filter-button">
+          Filtrar
+        </button>
+      </div>
+      <div class="list--actions">
+        <button (click)="exportToExcel()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="currentColor"
+            class="bi bi-file-earmark-excel"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"
+            />
+            <path
+              d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Remitente</th>
+          <th scope="col">Destinatario</th>
+          <th scope="col">Asunto</th>
+          <th scope="col">Estado de Envío</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (notification of notificationList; track $index) {
+        <tr>
+          <td>{{ notification.notificationSender }}</td>
+          <td>{{ notification.notificationReceiver }}</td>
+          <td>{{ notification.notificationSubject }}</td>
+          @if (notification.notificationSentStatus) {
+            <td><img src="assets/check2.svg" alt="Enviado"></td>
+          } @else {
+            <td><img src="assets/slash-circle.svg" alt="No Enviado" style="font-palette: red;"></td>
+          }
+        </tr>
+        }
+        @empty {
+        <tr>
+          <td colspan="5" class="text-center">No se encontraron notificaciones</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <div class="list--pagination">
+    <div class="pagination-left">
+      <label for="size-select">Cantidad:</label>
+      <select id="size-select" [(ngModel)]="size" (change)="fetchNotifications()">
+        <option [value]="5">5</option>
+        <option [value]="10">10</option>
+        <option [value]="20">20</option>
+      </select>
+    </div>
+    <div class="pagination-right">
+      <button (click)="previousPage()" [disabled]="page === 0">«</button>
+      <ng-container *ngFor="let p of totalPagesArray; let i = index">
+        <button (click)="goToPage(i)" [class.active]="page === i">
+          {{ i + 1 }}
+        </button>
+      </ng-container>
+      <button (click)="nextPage()" [disabled]="page >= totalPages - 1">
+        »
+      </button>
+    </div>
+  </div>
+</div>

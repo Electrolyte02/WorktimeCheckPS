@@ -1,7 +1,7 @@
 <div class="container">
   <div class="sidebar">
     <div>
-      <img class="sidebar--image" src="assets/Logo_Monitora_Blanco.png" alt="Logo epico">
+      <img class="sidebar--image" src="assets/Logo_Monitora_Blanco.png" alt="Logo epico" [routerLink]="['/dashboard']">
     </div>
     <div class="sidebar--options">
       @if (userRole == 'EMPLOYEE') {
@@ -10,20 +10,26 @@
           <img class="sidebar--options--option--image" src="assets/Clock.png">Mis Horarios
         </li>
         <li class="sidebar--options--option" [routerLink]="['/justificationList/my']">
-          <img class="sidebar--options--option--image" src="assets/today.png">Mis Justificaciones
+          <img class="sidebar--options--option--image" src="assets/today.png">Mis Justificados
         </li>
       </ul>
       }
       @if (userRole == 'MANAGER') {
         <ul>
         <li class="sidebar--options--option" [routerLink]="['/employeeList']">
-          <img class="sidebar--options--option--image" src="assets/gmail_groups.png">Empleados del Area
+          <img class="sidebar--options--option--image" src="assets/gmail_groups.png">Empleados
         </li>
-        <li class="sidebar--options--option">
-          <img class="sidebar--options--option--image" src="assets/Clock.png">Horarios del Area
+        <li class="sidebar--options--option" [routerLink]="['/timeList']">
+          <img class="sidebar--options--option--image" src="assets/Clock.png">Horarios
         </li>
-        <li class="sidebar--options--option">
-          <img class="sidebar--options--option--image" src="assets/today.png">Aprobaciones
+        <li class="sidebar--options--option" [routerLink]="['/justificationList']">
+          <img class="sidebar--options--option--image" src="assets/today.png">Justificaciones
+        </li>
+                <li class="sidebar--options--option" [routerLink]="['/timeList/my']">
+          <img class="sidebar--options--option--image" src="assets/Clock.png">Mis Horarios
+        </li>
+        <li class="sidebar--options--option" [routerLink]="['/justificationList/my']">
+          <img class="sidebar--options--option--image" src="assets/today.png">Mis Justificados
         </li>
       </ul>
       }
@@ -32,11 +38,17 @@
         <li class="sidebar--options--option" [routerLink]="['/employeeList']">
           <img class="sidebar--options--option--image" src="assets/gmail_groups.png">Empleados
         </li>
-        <li class="sidebar--options--option">
+        <li class="sidebar--options--option" [routerLink]="['/timeList']">
           <img class="sidebar--options--option--image" src="assets/Clock.png">Horarios
         </li>
-        <li class="sidebar--options--option">
-          <img class="sidebar--options--option--image" src="assets/today.png">Aprobación
+        <li class="sidebar--options--option" [routerLink]="['/justificationList']">
+          <img class="sidebar--options--option--image" src="assets/today.png">Justificaciones
+        </li>
+        <li class="sidebar--options--option" [routerLink]="['/timeList/my']">
+          <img class="sidebar--options--option--image" src="assets/Clock.png">Mis Horarios
+        </li>
+        <li class="sidebar--options--option" [routerLink]="['/justificationList/my']">
+          <img class="sidebar--options--option--image" src="assets/today.png">Mis Justificados
         </li>
         <li class="sidebar--options--option">
           <img class="sidebar--options--option--image" [routerLink]="['/config']"  src="assets/settings.png">Configuración
@@ -50,8 +62,8 @@
   <div class="main-content">
     <div class="navbar">
       <ul class="navbar--options">
-        <li class="navbar--option"><img src="assets/Generic avatar.png"></li>
-        <li class="navbar--option"><img src="assets/Log out.png"></li>
+        <li class="navbar--option" (click)="showFaq()"><img src="assets/chat.png" class="navbar--option--image"></li>
+        <li class="navbar--option" (click)="logout()"><img src="assets/Log out.png" class="navbar--option--image"></li>
       </ul>
     </div>
     <div class="app-root">

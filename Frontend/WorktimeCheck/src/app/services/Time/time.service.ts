@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { EmployeeTime } from '../../models/employeeTime';
 import { PaginatedResponse } from '../../models/paginatedResponse';
+import { E } from '@angular/cdk/keycodes';
 
 @Injectable({
   providedIn: 'root'
@@ -21,13 +22,22 @@ export class TimeService {
     });
   }
 
-  getPagedEmployeeTimes(employeeId: number, page: number = 0, size: number = 10) : Observable<PaginatedResponse<EmployeeTime>> {
+  getPagedEmployeeTimes(employeeId: number | null, page: number = 0, size: number = 10) : Observable<PaginatedResponse<EmployeeTime>> {
     const headers = this.getAuthHeaders();
-    const params = {
-      employeeId: employeeId.toString(),
+    let params;
+    if (employeeId != null) {
+      params = {
+      employeeId:employeeId,
       page: page.toString(),
       size: size.toString(),
-    };
+      };
+    }
+    else {
+      params = {
+      page: page.toString(),
+      size: size.toString(),
+      };
+    }
     return this.http.get<any>(`${this.apiUrl}/paged`, { headers, params });
   }
 

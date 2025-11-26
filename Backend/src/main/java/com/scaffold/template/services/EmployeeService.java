@@ -18,4 +18,5 @@ public interface EmployeeService {
     Page<EmployeeDto> getEmployeesPagedByArea(int page, int size, String search, Long userId);
     Employee getEmployeeByEmail(String employeeEmail);
     Employee getEmployeeByUserId(Long userId);
+    Employee getEmployeeManagerByEmployee(Long employeeId);
 }

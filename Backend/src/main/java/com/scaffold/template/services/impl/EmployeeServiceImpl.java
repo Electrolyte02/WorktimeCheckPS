@@ -4,7 +4,6 @@ import com.scaffold.template.dtos.EmployeeDto;
 import com.scaffold.template.dtos.EmployeeShiftDto;
 import com.scaffold.template.entities.AreaEntity;
 import com.scaffold.template.entities.EmployeeEntity;
-import com.scaffold.template.models.Area;
 import com.scaffold.template.models.Employee;
 import com.scaffold.template.models.EmployeeShift;
 import com.scaffold.template.repositories.AreaRepository;
@@ -38,6 +37,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private ModelMapper modelMapper;
 
 
+
     @Override
     public Employee getEmployee(Long id) {
         Optional<EmployeeEntity> entity = employeeRepository.findById(id);
@@ -55,7 +55,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         List<EmployeeEntity> employeeEntities = employeeRepository.findAll();
         List<Employee> auxReturn = new ArrayList<Employee>();
         for (EmployeeEntity e : employeeEntities){
-            if (e.getEmployeeState() ==1L ){
+            if (e.getEmployeeState() == 1L) {
                 auxReturn.add(modelMapper.map(e,Employee.class));
             }
         }
@@ -73,6 +73,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             s.setEmployeeId(auxEntity.getEmployeeId());
             shiftService.createShift(modelMapper.map(s, EmployeeShift.class), userId);
         }
+        //emailService.sendRegistrationEmail(auxEntity.getEmployeeId(), "http://localhost:4200/");
         return modelMapper.map(auxEntity,Employee.class);
     }
 
@@ -91,8 +92,9 @@ public class EmployeeServiceImpl implements EmployeeService {
                     shiftService.createShift(modelMapper.map(s, EmployeeShift.class), userId);
                 }
             }
+            return modelMapper.map(entity.get(), Employee.class);
         }
-        return modelMapper.map(entity.get(), Employee.class);
+        return null;
     }
 
     @Override
@@ -145,7 +147,13 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<EmployeeEntity> employeePage = employeeRepository.searchByAreaId(area.get().getId(), search,pageable);
+        Page<EmployeeEntity> employeePage;
+        if (search == null || search.isBlank()) {
+            employeePage = employeeRepository.findByAreaId(area.get().getId(), pageable);
+        }
+        else {
+            employeePage = employeeRepository.searchByAreaId(area.get().getId(), search,pageable);
+        }
 
         return employeePage.map(entity -> modelMapper.map(entity, EmployeeDto.class));
     }
@@ -161,6 +169,17 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Employee getEmployeeByUserId(Long userId) {
         Optional<EmployeeEntity> entity = employeeRepository.findByUserId(userId);
         return entity.map(employeeEntity -> modelMapper.map(employeeEntity, Employee.class)).orElse(null);
+    }
+
+    @Override
+    public Employee getEmployeeManagerByEmployee(Long employeeId) {
+        Optional<EmployeeEntity> entity = employeeRepository.findById(employeeId);
+        if (entity.isPresent()){
+            Optional<AreaEntity> area = areaRepository.findById(entity.get().getEmployeeArea().getId());
+            Optional<EmployeeEntity> manager = employeeRepository.findById(area.get().getAreaResponsible());
+            return modelMapper.map(manager,Employee.class);
+        }
+        return null;
     }
 
 }

@@ -17,6 +17,9 @@ import { MyTimeListComponent } from './components/times/my-time-list/my-time-lis
 import { MyCheckListComponent } from './components/checks/my-check-list/my-check-list.component';
 import { MyJustificationListComponent } from './components/justification/my-justification-list/my-justification-list.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { NotificationListComponent } from './components/notification/notification-list/notification-list.component';
+import { FaqComponent } from './components/miscellaneous/faq/faq.component';
+import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -25,6 +28,7 @@ export const routes: Routes = [
     path: '',
     component: MainLayoutComponent,
     children: [
+        { path: "justificationList/my", component: MyJustificationListComponent},
         { path: 'employeeList', component: EmployeeListComponent },
         { path: "employee", component:EmployeeCreateComponent},
         { path: "employee/:id", component:EmployeeCreateComponent},
@@ -34,14 +38,16 @@ export const routes: Routes = [
         { path: "timeList/my", component: MyTimeListComponent},
         { path: "justification/:timeId", component: JustificationFormComponent},
         { path: "justificationList", component: JustificationListComponent},
-        { path: "justificationList/my", component: MyJustificationListComponent},
         { path: "justification/view/:id", component: JustificationViewComponent},
         { path: 'check/:justificationId', component: CheckFormComponent},
         { path: 'checks/:employeeId', component: CheckListComponent },
         { path: 'areaList', component:AreaListComponent},
         { path: 'dashboard', component:DashboardComponent},
+        { path: 'notificationList', component:NotificationListComponent},
+        { path: 'faq', component:FaqComponent },
         { path: '**', redirectTo: 'dashboard' }
-    ]
+    ],
+    canActivate: [AuthGuard]
   },
   { path: '**', redirectTo: 'login' }
 ];

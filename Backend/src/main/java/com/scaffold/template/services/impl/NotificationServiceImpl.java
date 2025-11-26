@@ -7,6 +7,8 @@ import com.scaffold.template.services.NotificationService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -44,14 +46,18 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public Notification getNotificationById(Long notificationId, Long userId) {
         Optional<NotificationEntity> entity = notificationRepository.findById(notificationId);
-        if (entity.isPresent()){
-            return modelMapper.map(entity.get(),Notification.class);
-        }
-        return null;
+        return entity.map(notificationEntity -> modelMapper.map(notificationEntity, Notification.class)).orElse(null);
     }
 
     @Override
-    public Page<Notification> getNotificationsPaged(int page, int size) {
-        return null;
+    public Page<Notification> getNotificationsPaged(int page,
+                                                    int size,
+                                                    LocalDateTime from,
+                                                    LocalDateTime to) {
+        Pageable pageable = PageRequest.of(page,size);
+
+        Page<NotificationEntity> entityPage = notificationRepository.findAllPagedBetween(from,to,pageable);
+
+        return entityPage.map(e -> modelMapper.map(e, Notification.class));
     }
 }

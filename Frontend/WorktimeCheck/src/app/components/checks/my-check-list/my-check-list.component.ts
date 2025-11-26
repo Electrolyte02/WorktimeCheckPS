@@ -2,9 +2,9 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Check } from '../../../models/check';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CheckPageResponse, CheckService } from '../../../services/Check/check.service';
-import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-my-check-list',
@@ -25,7 +25,6 @@ export class MyCheckListComponent implements OnInit {
   page: number = 0;
 
   checkService: CheckService = inject(CheckService);
-  private toastService: ToastrService = inject(ToastrService);
 
   ngOnInit(): void {
     this.fetchChecks();
@@ -40,7 +39,7 @@ export class MyCheckListComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Error fetching checks:', err);
-        this.toastService.error('Error al cargar las verificaciones', 'Error');
+        toast.error('Error al cargar las verificaciones');
       }
     });
   }

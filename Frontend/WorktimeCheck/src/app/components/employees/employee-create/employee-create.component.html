@@ -8,46 +8,113 @@
 
     <div class="row">
       <div class="input-field">
-        <label for="firstName">Nombre</label>
-        <input type="text" id="firstName" formControlName="firstName" />
+        <label for="firstName">Nombre *</label>
+        <input 
+          type="text" 
+          id="firstName" 
+          formControlName="firstName" 
+          [class.error]="employeeForm.get('firstName')?.invalid && employeeForm.get('firstName')?.touched"
+          placeholder="Ingrese el nombre"
+        />
+        <span 
+          class="error-message" 
+          *ngIf="employeeForm.get('firstName')?.invalid && employeeForm.get('firstName')?.touched"
+        >
+          <span *ngIf="employeeForm.get('firstName')?.errors?.['required']">
+            El nombre es obligatorio
+          </span>
+        </span>
       </div>
 
       <div class="input-field">
-        <label for="lastName">Apellido</label>
-        <input type="text" id="lastName" formControlName="lastName" />
+        <label for="lastName">Apellido *</label>
+        <input 
+          type="text" 
+          id="lastName" 
+          formControlName="lastName" 
+          [class.error]="employeeForm.get('lastName')?.invalid && employeeForm.get('lastName')?.touched"
+          placeholder="Ingrese el apellido"
+        />
+        <span 
+          class="error-message" 
+          *ngIf="employeeForm.get('lastName')?.invalid && employeeForm.get('lastName')?.touched"
+        >
+          <span *ngIf="employeeForm.get('lastName')?.errors?.['required']">
+            El apellido es obligatorio
+          </span>
+        </span>
       </div>
     </div>
 
     <div class="row">
       <div class="input-field">
-        <label for="document">CUIL</label>
+        <label for="document">CUIL *</label>
         <input
           type="text"
           id="document"
           formControlName="document"
           [disabled]="auxOperation"
+          [class.error]="employeeForm.get('document')?.invalid && employeeForm.get('document')?.touched"
+          placeholder="XX-XXXXXXXXX-X"
         />
+        <span 
+          class="error-message" 
+          *ngIf="employeeForm.get('document')?.invalid && employeeForm.get('document')?.touched"
+        >
+          <span *ngIf="employeeForm.get('document')?.errors?.['required']">
+            El CUIL es obligatorio
+          </span>
+          <span *ngIf="employeeForm.get('document')?.errors?.['pattern']">
+            El CUIL debe tener el formato XX-XXXXXXXXX-X (números solamente)
+          </span>
+        </span>
       </div>
 
       <div class="input-field">
-        <label for="area">Área</label>
-        <select id="area" formControlName="area">
+        <label for="area">Área *</label>
+        <select 
+          id="area" 
+          formControlName="area"
+          [class.error]="employeeForm.get('area')?.invalid && employeeForm.get('area')?.touched"
+        >
+          <option value="">Seleccione un área</option>
           @for (area of areas; track $index) {
             <option value="{{area.id}}">{{area.description}}</option>
           }
         </select>
+        <span 
+          class="error-message" 
+          *ngIf="employeeForm.get('area')?.invalid && employeeForm.get('area')?.touched"
+        >
+          <span *ngIf="employeeForm.get('area')?.errors?.['required']">
+            Debe seleccionar un área
+          </span>
+        </span>
       </div>
     </div>
     
     <div class="row">
       <div class="input-field">
-        <label for="email">Email</label>
+        <label for="email">Email *</label>
         <input
-          type="text"
+          type="email"
           id="email"
           formControlName="email"
           [disabled]="auxOperation"
+          [class.error]="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched"
+          placeholder="ejemplo@correo.com"
         />
+        <span 
+          class="error-message" 
+          *ngIf="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched"
+        >
+          <span *ngIf="employeeForm.get('email')?.errors?.['required']">
+            El email es obligatorio
+          </span>
+          <span *ngIf="employeeForm.get('email')?.errors?.['email']">
+            Debe ingresar un email válido
+          </span>
+        </span>
       </div>
     </div>
 
@@ -77,6 +144,14 @@
         </div>
       </div>
 
+      <!-- Error message for day selection -->
+      <span 
+        class="error-message" 
+        *ngIf="!hasSelectedDays() && formSubmitted"
+      >
+        Debe seleccionar al menos un día de trabajo
+      </span>
+
       <div class="checkbox-group">
         <input
           type="checkbox"
@@ -94,13 +169,42 @@
         *ngIf="!employeeForm.get('distinctSchedules')?.value"
       >
         <div class="time-input">
-          <label for="entryTime">Desde</label>
-          <input type="time" id="entryTime" formControlName="entryTime" />
+          <label for="entryTime">Desde *</label>
+          <input 
+            type="time" 
+            id="entryTime" 
+            formControlName="entryTime" 
+            [class.error]="employeeForm.get('entryTime')?.invalid && employeeForm.get('entryTime')?.touched"
+          />
+          <span 
+            class="error-message" 
+            *ngIf="employeeForm.get('entryTime')?.invalid && employeeForm.get('entryTime')?.touched"
+          >
+            <span *ngIf="employeeForm.get('entryTime')?.errors?.['required']">
+              La hora de entrada es obligatoria
+            </span>
+          </span>
         </div>
 
         <div class="time-input">
-          <label for="exitTime">Hasta</label>
-          <input type="time" id="exitTime" formControlName="exitTime" />
+          <label for="exitTime">Hasta *</label>
+          <input 
+            type="time" 
+            id="exitTime" 
+            formControlName="exitTime" 
+            [class.error]="employeeForm.get('exitTime')?.invalid && employeeForm.get('exitTime')?.touched"
+          />
+          <span 
+            class="error-message" 
+            *ngIf="employeeForm.get('exitTime')?.invalid && employeeForm.get('exitTime')?.touched"
+          >
+            <span *ngIf="employeeForm.get('exitTime')?.errors?.['required']">
+              La hora de salida es obligatoria
+            </span>
+            <span *ngIf="employeeForm.get('exitTime')?.errors?.['timeRange']">
+              La hora de salida debe ser posterior a la hora de entrada
+            </span>
+          </span>
         </div>
       </div>
 
@@ -118,10 +222,37 @@
             <label>{{ control.get("day")?.value }}</label>
             <div class="time-inputs">
               <div class="time-input">
-                <input type="time" formControlName="entryTime" />
+                <input 
+                  type="time" 
+                  formControlName="entryTime" 
+                  [class.error]="control.get('entryTime')?.invalid && control.get('entryTime')?.touched"
+                />
+                <span 
+                  class="error-message" 
+                  *ngIf="control.get('entryTime')?.invalid && control.get('entryTime')?.touched"
+                >
+                  <span *ngIf="control.get('entryTime')?.errors?.['required']">
+                    Hora requerida
+                  </span>
+                </span>
               </div>
               <div class="time-input">
-                <input type="time" formControlName="exitTime" />
+                <input 
+                  type="time" 
+                  formControlName="exitTime" 
+                  [class.error]="control.get('exitTime')?.invalid && control.get('exitTime')?.touched"
+                />
+                <span 
+                  class="error-message" 
+                  *ngIf="control.get('exitTime')?.invalid && control.get('exitTime')?.touched"
+                >
+                  <span *ngIf="control.get('exitTime')?.errors?.['required']">
+                    Hora requerida
+                  </span>
+                  <span *ngIf="control.get('exitTime')?.errors?.['timeRange']">
+                    Debe ser posterior a la entrada
+                  </span>
+                </span>
               </div>
             </div>
           </div>
@@ -131,7 +262,13 @@
 
     <div class="form--actions">
       <button type="button" (click)="returnList()">Cancelar</button>
-      <button type="button" (click)="saveEmployee()">Guardar</button>
+      <button 
+        type="button" 
+        (click)="saveEmployee()" 
+        [disabled]="employeeForm.invalid || !hasSelectedDays()"
+      >
+        Guardar
+      </button>
     </div>
   </form>
 </div>

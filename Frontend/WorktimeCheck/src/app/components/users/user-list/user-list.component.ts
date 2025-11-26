@@ -4,7 +4,9 @@ import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../services/User/user.service';
 import { UserInfoDto } from '../../../models/userInfoDto';
-import { ToastrService } from 'ngx-toastr';
+import { toast } from 'ngx-sonner';
+import * as XLSX from 'xlsx';
+
 
 @Component({
   selector: 'app-user-list',
@@ -26,7 +28,6 @@ export class UserListComponent implements OnInit {
 
   private router = inject(Router);
   private userService = inject(UserService);
-  private toastService:ToastrService = inject(ToastrService);
 
   ngOnInit(): void {
     this.fetchUsers();
@@ -68,12 +69,13 @@ export class UserListComponent implements OnInit {
     if (this.userMailToDelete !== null) {
       this.userService.deleteUser(this.userMailToDelete).subscribe({
         next: () => {
+          toast.success("Usuario anulado con exito");
           this.fetchUsers();
           this.resetModal();
         },
         error: err => {
           console.error(err);
-          this.toastService.error("Error al borrar el usuario", err.error);
+          toast.error("Error al borrar el usuario", err.error);
           this.resetModal();
         }
       });
@@ -87,5 +89,83 @@ export class UserListComponent implements OnInit {
   private resetModal() {
     this.showConfirmModal = false;
     this.userMailToDelete = null;
+  }
+
+  getStateClass(state: number): string {
+    switch (state) {
+      case 0:
+        return 'state-deleted';
+      case 1:
+        return 'state-approved';
+      default:
+        return 'state-unknown';
+    }
+  }
+
+  getCheckStateText(state: number): string {
+    switch (state) {
+      case 0:
+        return 'Inactivo';
+      case 1:
+        return 'Activo';
+      default:
+        return 'Desconocido';
+    }
+  }
+
+    // Excel Export Methods
+  exportToExcel() {
+    this.exportCurrentPage();
+  }
+
+  private exportCurrentPage() {
+    if (this.userList.length === 0) {
+      toast.error('No hay usuarios para exportar');
+      return;
+    }
+
+    const exportData = this.prepareExportData(this.userList);
+    this.generateExcelFile(exportData, 'usuarios_pagina_actual');
+  }
+
+  private prepareExportData(users: UserInfoDto[]) {
+    return users.map(user => ({
+      'Nombre': user.userName,
+      'Email': user.email,
+      'Rol': user.userRole,
+      'Estado': this.getCheckStateText(user.userState),
+    }));
+  }
+
+  private generateExcelFile(data: any[], filename: string) {
+    try {
+      // Create workbook and worksheet
+      const wb: XLSX.WorkBook = XLSX.utils.book_new();
+      const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+
+      // Set column widths for better formatting
+      const wscols = [
+        { width: 25 }, // Nombre
+        { width: 30 }, // Email
+        { width: 20 }, // Rol
+        { width: 12 } // Estado
+      ];
+      ws['!cols'] = wscols;
+
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Usuarios');
+
+      // Generate filename with timestamp
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+      const fullFilename = `${filename}_${timestamp}.xlsx`;
+
+      // Save file
+      XLSX.writeFile(wb, fullFilename);
+
+      toast.success(`Excel exportado exitosamente: ${fullFilename}`);
+    } catch (error) {
+      console.error('Error generating Excel file:', error);
+      toast.error('Error al generar el archivo Excel');
+    }
   }
 }

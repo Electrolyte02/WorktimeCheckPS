@@ -2,6 +2,7 @@ import { Component, Input, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { JustificationService, TimeJustificationDto } from '../../../services/Justification/justification.service';
 
 
@@ -14,7 +15,7 @@ import { JustificationService, TimeJustificationDto } from '../../../services/Ju
 })
 export class JustificationViewComponent implements OnInit, OnDestroy {
   @Input() selectedDate!: string;
-  @Input() justificationId: number = 3; // Changed to receive justification ID instead of static data
+  justificationId: number = 0; // Will be set from route parameter
   
   // Optional: keep these as inputs if you want to pass data directly
   @Input() justificationObservation?: string;
@@ -28,24 +29,31 @@ export class JustificationViewComponent implements OnInit, OnDestroy {
 
   private fb: FormBuilder = inject(FormBuilder);
   private justificationService: JustificationService = inject(JustificationService);
+  private route: ActivatedRoute = inject(ActivatedRoute);
+  private router: Router = inject(Router);
 
   ngOnInit(): void {
     this.initializeForm();
-    
-    if (this.justificationId) {
-      this.loadJustificationData();
-    } else if (this.justificationObservation) {
-      // Fallback to using input data if available
-      this.justificationForm.patchValue({
-        justificationObservation: this.justificationObservation
-      });
-    }
+    this.getJustificationIdFromRoute();
   }
 
   ngOnDestroy(): void {
     // Clean up object URL to prevent memory leaks
     if (this.fileDownloadUrl) {
       URL.revokeObjectURL(this.fileDownloadUrl);
+    }
+  }
+
+  private getJustificationIdFromRoute(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    
+    if (id && !isNaN(Number(id))) {
+      this.justificationId = Number(id);
+      this.loadJustificationData();
+    } else {
+      // Handle invalid or missing ID
+      this.error = 'ID de justificación inválido';
+      console.error('Invalid justification ID from route:', id);
     }
   }
 
@@ -56,6 +64,11 @@ export class JustificationViewComponent implements OnInit, OnDestroy {
   }
 
   loadJustificationData(): void {
+    if (!this.justificationId) {
+      this.error = 'ID de justificación no válido';
+      return;
+    }
+
     this.isLoading = true;
     this.error = undefined;
 
@@ -141,7 +154,11 @@ export class JustificationViewComponent implements OnInit, OnDestroy {
       URL.revokeObjectURL(this.fileDownloadUrl);
     }
     
-    // Aquí puedes navegar hacia atrás o cerrar el modal
-    console.log('Volver');
+    let userRole = localStorage.getItem('role');
+    if(userRole == 'ADMIN' || userRole == 'MANAGER') {
+      this.router.navigate(['justificationList']);
+    } else {
+    this.router.navigate(['justificationList/my']);
+    }
   }
 }

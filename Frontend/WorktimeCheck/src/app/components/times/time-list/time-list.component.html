@@ -4,9 +4,31 @@
   </div>
   <div class="list--body">
     <div class="list--filters">
+      <div class="list--filters">
+        <label for="responsible">Empleado:</label>
+        <select
+          id="responsible"
+          [(ngModel)]="employeeId"
+          (change)="loadTimes()"
+          name="areaResponsible"
+          required
+          class="form-control"
+        >
+          <option value="{{ null }}">Seleccione un empleado</option>
+          @for (employee of employees; track employee.employeeId) {
+          <option [value]="employee.employeeId">
+            {{ employee.employeeName }} {{ employee.employeeLastName }}
+          </option>
+          }
+        </select>
+      </div>
     </div>
     <div class="list--actions">
-      <button>
+      <button
+        (click)="exportToExcel()"
+        title="Exportar a Excel"
+        [disabled]=" employeeTimes.length === 0"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -31,43 +53,32 @@
           <th scope="col">Tipo de Acción</th>
           <th scope="col">A Horario</th>
           <th scope="col">Estado</th>
-          <th scope="col">Acciones</th>
         </tr>
       </thead>
       <tbody>
         @for (e of employeeTimes; track $index) {
         <tr>
-          <td>{{ e.timeDay | date}}</td>
+          <td>{{ e.timeDay | date }}</td>
           @if(e.timeType == 'E'){
-            <td>Ingreso</td>
-          }
-          @else {
-           <td>Egreso</td> 
-          }
-          @if (e.timeOnTime) {
-            <td>✓</td>
-          }
-          @else {
-            <td>X</td>
-          }
-          @if (e.timeState==0) {
-            <td><img src="assets/slash-circle.svg" alt="Deshabilitado" style="font-palette: red;"></td>
-          } @else if (e.timeState==1) {
-          <td><img src="assets/check2.svg" alt="Habilitado"></td>
-          }
-          @else if (e.timeState==1) {
-            <td>Justificado</td>
+          <td>Ingreso</td>
+          } @else {
+          <td>Egreso</td>
+          } @if (e.timeOnTime) {
+          <td>✓</td>
+          } @else {
+          <td>X</td>
           }
           <td>
-            @if (!e.timeOnTime && e.timeState!=2) {
-              <button (click)="redirectJustification(e.timeId)">Justificar</button>
-            }
+            <span class="{{ getStateClass(e.timeState) }}">{{
+              getCheckStateText(e.timeState)
+            }}</span>
           </td>
         </tr>
-        }
-        @empty {
+        } @empty {
         <tr>
-          <td colspan="5" class="text-center">No se encontraron ingresos/egresos</td>
+          <td colspan="5" class="text-center">
+            No se encontraron ingresos/egresos
+          </td>
         </tr>
         }
       </tbody>
@@ -76,7 +87,7 @@
   <div class="list--pagination">
     <div class="pagination-left">
       <label for="size-select">Cantidad:</label>
-      <select id="size-select" [(ngModel)]="size" (change)="(loadTimes())">
+      <select id="size-select" [(ngModel)]="size" (change)="loadTimes()">
         <option [value]="5">5</option>
         <option [value]="10">10</option>
         <option [value]="20">20</option>

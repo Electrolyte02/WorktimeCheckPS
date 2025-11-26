@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe, CommonModule } from '@angular/common';
 import { JustificationService, TimeJustificationDto } from '../../../services/Justification/justification.service';
 import { CheckService, Check } from '../../../services/Check/check.service';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-check-form',
@@ -69,7 +70,7 @@ export class CheckFormComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: (error: any) => {
-        console.error('Error loading justification:', error);
+        toast.error('Error cargando la justificación:', error);
         this.error = 'Error al cargar la justificación';
         this.isLoading = false;
       }
@@ -106,12 +107,12 @@ export class CheckFormComponent implements OnInit, OnDestroy {
 
       this.checkService.createJustificationCheck(checkData).subscribe({
         next: (response: Check) => {
-          console.log('Check created successfully:', response);
+          toast.success('La justificación ha sido revisada correctamente');
           // Navigate back to justification list or show success message
-          this.router.navigate(['/justifications']);
+          this.router.navigate(['/justificationList']);
         },
         error: (error: any) => {
-          console.error('Error creating check:', error);
+          toast.error('Error al revisar la justificación:', error);
           this.submitError = 'Error al procesar la justificación. Intente nuevamente.';
           this.isSubmitting = false;
         }
