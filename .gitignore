@@ -1,0 +1,33 @@
+# Node
+node_modules/
+dist/
+\# Angular
+/.angular/cache/
+
+
+# Java / Maven
+/target/
+*.class
+*.jar
+*.war
+*.ear
+
+
+# Spring Boot
+*.log
+
+
+# IDEs
+/.idea/
+/.vscode/
+*.iml
+
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+
+# Env
+.env
+.env.local
