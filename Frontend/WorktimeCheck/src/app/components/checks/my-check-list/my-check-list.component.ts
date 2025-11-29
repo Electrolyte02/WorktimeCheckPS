@@ -68,7 +68,7 @@ export class MyCheckListComponent implements OnInit {
   }
 
   goBackToEmployees() {
-    this.router.navigate(['/employees']);
+    this.router.navigate(['/employeeList']);
   }
 
   getApprovalText(approval: boolean): string {

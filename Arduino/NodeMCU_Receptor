@@ -1,0 +1,79 @@
+#include <ESP8266WiFi.h>
+#include <SoftwareSerial.h>
+
+SoftwareSerial mySerial(D1, D0);  
+
+const char* ssid = ""; 
+const char* password = "";
+
+const char* host = "";  
+const int port = 5000;               
+WiFiClient client;
+unsigned long lastReconnectAttempt = 0;  
+const unsigned long reconnectInterval = 60000; 
+
+void setup() {
+  Serial.begin(9600);  
+  mySerial.begin(9600); 
+  
+  // Conexión Wi-Fi
+  Serial.print("Conectando a ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  
+  Serial.println("");
+  Serial.println("WiFi conectado");
+  Serial.println("Dirección IP: ");
+  Serial.println(WiFi.localIP());
+}
+
+void loop() {
+
+  if (WiFi.status() != WL_CONNECTED) {
+    reconnectWiFi();
+  }
+
+  if (!client.connected()) {
+    unsigned long now = millis();
+    if (now - lastReconnectAttempt >= reconnectInterval) {
+      lastReconnectAttempt = now;
+      if (reconnectToServer()) {
+        Serial.println("Conectado al servidor");
+      } else {
+        Serial.println("Fallo en la conexión al servidor");
+      }
+    }
+  } else {
+    if (mySerial.available()) {
+      String message = mySerial.readString(); 
+      Serial.println("Enviando mensaje: " + message); 
+      
+      client.println(message);  
+      client.flush();  
+    }
+  }
+}
+
+// Función para reconectar al servidor con un timeout
+bool reconnectToServer() {
+  Serial.println("Intentando conectar al servidor...");
+  return client.connect(host, port);
+}
+
+// Función para reconectar a la red Wi-Fi
+void reconnectWiFi() {
+  Serial.println("Reconectando a Wi-Fi...");
+  WiFi.disconnect();
+  WiFi.begin(ssid, password);
+  
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nWi-Fi reconectado");
+}

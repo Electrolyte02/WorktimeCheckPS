@@ -177,7 +177,7 @@ export class CheckFormComponent implements OnInit, OnDestroy {
     }
     
     // Navigate back to justifications list
-    this.router.navigate(['/justifications']);
+    this.router.navigate(['/justificationList']);
   }
 
   // Helper methods for form validation
